@@ -4,25 +4,44 @@ from dotenv import load_dotenv
 from openai import OpenAI
 
 
-load_dotenv()
+# Load backend/.env
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+ENV_FILE = os.path.join(BASE_DIR, ".env")
 
-OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
+load_dotenv(ENV_FILE)
 
-client = OpenAI(api_key=OPENAI_API_KEY)
+
+# Get OpenRouter API key
+OPENROUTER_API_KEY = os.getenv("OPENROUTER_API_KEY")
+
+
+# OpenRouter uses an OpenAI-compatible API
+client = OpenAI(
+    base_url="https://openrouter.ai/api/v1",
+    api_key=OPENROUTER_API_KEY
+)
 
 
 def generate_summary(text: str):
 
-    response = client.responses.create(
-        model="gpt-5-mini",
-        instructions=(
-            "You are an AI study assistant. "
-            "Summarize the student's study material clearly and simply. "
-            "Keep the important concepts, definitions, and key points. "
-            "Use headings and bullet points where helpful. "
-            "Do not add information that is not present in the material."
-        ),
-        input=text
+    response = client.chat.completions.create(
+        model="openrouter/free",
+        messages=[
+            {
+                "role": "system",
+                "content": (
+                    "You are an AI study assistant. "
+                    "Summarize the student's study material clearly and simply. "
+                    "Keep important concepts, definitions, and key points. "
+                    "Use headings and bullet points where helpful. "
+                    "Do not add information that is not present in the material."
+                )
+            },
+            {
+                "role": "user",
+                "content": text
+            }
+        ]
     )
 
-    return response.output_text
+    return response.choices[0].message.content

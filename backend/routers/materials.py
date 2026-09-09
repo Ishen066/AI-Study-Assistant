@@ -7,8 +7,10 @@ from sqlalchemy.orm import Session
 from pypdf import PdfReader
 
 from database import SessionLocal
+from models.summary import Summary
 from models.study_material import StudyMaterial
 from routers.auth import get_current_user
+from ai import generate_summary
 
 
 router = APIRouter(
@@ -117,3 +119,55 @@ def get_my_materials(
         }
         for material in materials
     ]
+
+
+# ==========================================
+# GENERATE AI SUMMARY
+# ==========================================
+
+@router.post("/{material_id}/summarize")
+def summarize_material(
+    material_id: int,
+    db: Session = Depends(get_db),
+    current_user=Depends(get_current_user)
+):
+    material = (
+        db.query(StudyMaterial)
+        .filter(
+            StudyMaterial.id == material_id,
+            StudyMaterial.user_id == current_user.id
+        )
+        .first()
+    )
+
+    if not material:
+        raise HTTPException(
+            status_code=404,
+            detail="Study material not found"
+        )
+
+    if not material.extracted_text:
+        raise HTTPException(
+            status_code=400,
+            detail="No text found in this PDF"
+        )
+
+    summary_text = generate_summary(
+        material.extracted_text
+    )
+
+    summary = Summary(
+        material_id=material.id,
+        summary_text=summary_text
+    )
+
+    db.add(summary)
+    db.commit()
+    db.refresh(summary)
+
+    return {
+        "message": "AI summary generated successfully",
+        "summary_id": summary.id,
+        "material_id": material.id,
+        "summary": summary.summary_text
+    }
