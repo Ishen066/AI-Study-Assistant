@@ -1,4 +1,5 @@
 from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 
 from database import Base, engine
 from models.user import User
@@ -9,10 +10,12 @@ from models.quiz import QuizQuestion
 from routers.materials import router as materials_router
 from models.quiz_result import QuizResult
 
+
 # Create database tables
 Base.metadata.create_all(bind=engine)
 
 
+# Create FastAPI application
 app = FastAPI(
     title="AI Study Assistant API",
     description="Backend API for the AI-powered study assistant",
@@ -20,8 +23,23 @@ app = FastAPI(
 )
 
 
+# CORS configuration
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=[
+        "http://localhost:5173",
+        "http://localhost:5174",
+    ],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+
 # Authentication routes
 app.include_router(auth_router)
+
+# Study material routes
 app.include_router(materials_router)
 
 
