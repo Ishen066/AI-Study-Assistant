@@ -563,3 +563,36 @@ def delete_material(
         "message": "Study material deleted successfully",
         "material_id": material_id
     }
+
+# ==========================================
+# GET QUIZ HISTORY
+# ==========================================
+
+@router.get("/quiz-history")
+def get_quiz_history(
+    db: Session = Depends(get_db),
+    current_user=Depends(get_current_user)
+):
+    results = (
+        db.query(QuizResult)
+        .filter(
+            QuizResult.user_id == current_user.id
+        )
+        .order_by(QuizResult.id.desc())
+        .all()
+    )
+
+    return {
+        "total_results": len(results),
+        "quiz_history": [
+            {
+                "result_id": result.id,
+                "material_id": result.material_id,
+                "score": result.score,
+                "total_questions": result.total_questions,
+                "correct_answers": result.correct_answers,
+                "wrong_answers": result.wrong_answers
+            }
+            for result in results
+        ]
+    }
