@@ -253,3 +253,57 @@ def generate_material_quiz(
             for question in saved_questions
         ]
     }
+
+# ==========================================
+# GET GENERATED QUIZ
+# ==========================================
+
+@router.get("/{material_id}/quiz")
+def get_material_quiz(
+    material_id: int,
+    db: Session = Depends(get_db),
+    current_user=Depends(get_current_user)
+):
+    material = (
+        db.query(StudyMaterial)
+        .filter(
+            StudyMaterial.id == material_id,
+            StudyMaterial.user_id == current_user.id
+        )
+        .first()
+    )
+
+    if not material:
+        raise HTTPException(
+            status_code=404,
+            detail="Study material not found"
+        )
+
+    questions = (
+        db.query(QuizQuestion)
+        .filter(QuizQuestion.material_id == material_id)
+        .order_by(QuizQuestion.id.asc())
+        .all()
+    )
+
+    if not questions:
+        raise HTTPException(
+            status_code=404,
+            detail="No quiz found for this material"
+        )
+
+    return {
+        "material_id": material_id,
+        "number_of_questions": len(questions),
+        "questions": [
+            {
+                "id": question.id,
+                "question": question.question,
+                "option_a": question.option_a,
+                "option_b": question.option_b,
+                "option_c": question.option_c,
+                "option_d": question.option_d
+            }
+            for question in questions
+        ]
+    }
