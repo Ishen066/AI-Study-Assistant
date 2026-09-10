@@ -7,6 +7,7 @@ from models.study_material import StudyMaterial
 from models.summary import Summary
 from models.quiz import QuizQuestion
 from routers.materials import router as materials_router
+from models.quiz_result import QuizResult
 
 # Create database tables
 Base.metadata.create_all(bind=engine)

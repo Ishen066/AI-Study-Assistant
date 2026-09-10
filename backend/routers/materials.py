@@ -12,6 +12,8 @@ from models.study_material import StudyMaterial
 from models.quiz import QuizQuestion
 from routers.auth import get_current_user
 from ai import generate_summary, generate_quiz
+from schemas.quiz import QuizSubmit
+from models.quiz_result import QuizResult
 
 
 router = APIRouter(
@@ -305,5 +307,162 @@ def get_material_quiz(
                 "option_d": question.option_d
             }
             for question in questions
+        ]
+    }
+
+# ==========================================
+# SUBMIT QUIZ AND CALCULATE SCORE
+# ==========================================
+
+@router.post("/{material_id}/quiz/submit")
+def submit_quiz(
+    material_id: int,
+    quiz_submission: QuizSubmit,
+    db: Session = Depends(get_db),
+    current_user=Depends(get_current_user)
+):
+    material = (
+        db.query(StudyMaterial)
+        .filter(
+            StudyMaterial.id == material_id,
+            StudyMaterial.user_id == current_user.id
+        )
+        .first()
+    )
+
+    if not material:
+        raise HTTPException(
+            status_code=404,
+            detail="Study material not found"
+        )
+
+    questions = (
+        db.query(QuizQuestion)
+        .filter(QuizQuestion.material_id == material_id)
+        .all()
+    )
+
+    if not questions:
+        raise HTTPException(
+            status_code=404,
+            detail="No quiz found for this material"
+        )
+
+    question_map = {
+        question.id: question
+        for question in questions
+    }
+
+    correct_answers = 0
+    wrong_answers = 0
+
+    results = []
+
+    for submitted_answer in quiz_submission.answers:
+
+        question = question_map.get(
+            submitted_answer.question_id
+        )
+
+        if not question:
+            continue
+
+        is_correct = (
+            submitted_answer.answer.upper()
+            == question.correct_answer.upper()
+        )
+
+        if is_correct:
+            correct_answers += 1
+        else:
+            wrong_answers += 1
+
+        results.append({
+            "question_id": question.id,
+            "your_answer": submitted_answer.answer,
+            "correct": is_correct
+        })
+
+    total_questions = len(questions)
+
+    score = round(
+        (correct_answers / total_questions) * 100
+    )
+
+    quiz_result = QuizResult(
+        material_id=material_id,
+        user_id=current_user.id,
+        score=score,
+        total_questions=total_questions,
+        correct_answers=correct_answers,
+        wrong_answers=wrong_answers
+    )
+
+    db.add(quiz_result)
+    db.commit()
+    db.refresh(quiz_result)
+
+    return {
+        "message": "Quiz submitted successfully",
+        "result_id": quiz_result.id,
+        "score": score,
+        "total_questions": total_questions,
+        "correct_answers": correct_answers,
+        "wrong_answers": wrong_answers,
+        "results": results
+    }
+# ==========================================
+# GET QUIZ PROGRESS
+# ==========================================
+
+@router.get("/progress")
+def get_progress(
+    db: Session = Depends(get_db),
+    current_user=Depends(get_current_user)
+):
+    results = (
+        db.query(QuizResult)
+        .filter(QuizResult.user_id == current_user.id)
+        .order_by(QuizResult.id.desc())
+        .all()
+    )
+
+    total_quizzes = len(results)
+
+    if total_quizzes == 0:
+        return {
+            "total_quizzes": 0,
+            "average_score": 0,
+            "total_correct_answers": 0,
+            "total_wrong_answers": 0,
+            "quiz_results": []
+        }
+
+    total_score = sum(result.score for result in results)
+    average_score = round(total_score / total_quizzes)
+
+    total_correct = sum(
+        result.correct_answers for result in results
+    )
+
+    total_wrong = sum(
+        result.wrong_answers for result in results
+    )
+
+    return {
+        "total_quizzes": total_quizzes,
+        "average_score": average_score,
+        "total_correct_answers": total_correct,
+        "total_wrong_answers": total_wrong,
+        "quiz_results": [
+            {
+                "result_id": result.id,
+                "material_id": result.material_id,
+                "score": result.score,
+                "total_questions": result.total_questions,
+                "correct_answers": result.correct_answers,
+                "wrong_answers": result.wrong_answers
+            }
+            for result in results
         ]
     }
