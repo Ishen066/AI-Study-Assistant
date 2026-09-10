@@ -10,10 +10,10 @@ from database import SessionLocal
 from models.summary import Summary
 from models.study_material import StudyMaterial
 from models.quiz import QuizQuestion
+from models.quiz_result import QuizResult
 from routers.auth import get_current_user
 from ai import generate_summary, generate_quiz
 from schemas.quiz import QuizSubmit
-from models.quiz_result import QuizResult
 
 
 router = APIRouter(
@@ -22,6 +22,10 @@ router = APIRouter(
 )
 
 
+# ==========================================
+# DATABASE CONNECTION
+# ==========================================
+
 def get_db():
     db = SessionLocal()
     try:
@@ -29,6 +33,10 @@ def get_db():
     finally:
         db.close()
 
+
+# ==========================================
+# UPLOAD DIRECTORY
+# ==========================================
 
 UPLOAD_DIR = "uploads"
 os.makedirs(UPLOAD_DIR, exist_ok=True)
@@ -108,7 +116,9 @@ def get_my_materials(
 ):
     materials = (
         db.query(StudyMaterial)
-        .filter(StudyMaterial.user_id == current_user.id)
+        .filter(
+            StudyMaterial.user_id == current_user.id
+        )
         .order_by(StudyMaterial.id.desc())
         .all()
     )
@@ -118,10 +128,81 @@ def get_my_materials(
             "id": material.id,
             "title": material.title,
             "filename": material.filename,
-            "extracted_text_length": len(material.extracted_text or "")
+            "extracted_text_length": len(
+                material.extracted_text or ""
+            )
         }
         for material in materials
     ]
+
+
+# ==========================================
+# GET QUIZ PROGRESS
+# IMPORTANT:
+# Keep this BEFORE /{material_id}/... routes
+# ==========================================
+
+@router.get("/progress")
+def get_progress(
+    db: Session = Depends(get_db),
+    current_user=Depends(get_current_user)
+):
+    results = (
+        db.query(QuizResult)
+        .filter(
+            QuizResult.user_id == current_user.id
+        )
+        .order_by(QuizResult.id.desc())
+        .all()
+    )
+
+    total_quizzes = len(results)
+
+    if total_quizzes == 0:
+        return {
+            "total_quizzes": 0,
+            "average_score": 0,
+            "total_correct_answers": 0,
+            "total_wrong_answers": 0,
+            "quiz_results": []
+        }
+
+    total_score = sum(
+        result.score
+        for result in results
+    )
+
+    average_score = round(
+        total_score / total_quizzes
+    )
+
+    total_correct = sum(
+        result.correct_answers
+        for result in results
+    )
+
+    total_wrong = sum(
+        result.wrong_answers
+        for result in results
+    )
+
+    return {
+        "total_quizzes": total_quizzes,
+        "average_score": average_score,
+        "total_correct_answers": total_correct,
+        "total_wrong_answers": total_wrong,
+        "quiz_results": [
+            {
+                "result_id": result.id,
+                "material_id": result.material_id,
+                "score": result.score,
+                "total_questions": result.total_questions,
+                "correct_answers": result.correct_answers,
+                "wrong_answers": result.wrong_answers
+            }
+            for result in results
+        ]
+    }
 
 
 # ==========================================
@@ -155,9 +236,15 @@ def summarize_material(
             detail="No text found in this PDF"
         )
 
-    summary_text = generate_summary(
-        material.extracted_text
-    )
+    try:
+        summary_text = generate_summary(
+            material.extracted_text
+        )
+    except Exception:
+        raise HTTPException(
+            status_code=500,
+            detail="Failed to generate AI summary"
+        )
 
     summary = Summary(
         material_id=material.id,
@@ -218,6 +305,12 @@ def generate_material_quiz(
             detail="Failed to generate quiz"
         )
 
+    if not quiz_data.get("questions"):
+        raise HTTPException(
+            status_code=500,
+            detail="AI did not generate any questions"
+        )
+
     saved_questions = []
 
     for item in quiz_data["questions"]:
@@ -256,6 +349,7 @@ def generate_material_quiz(
         ]
     }
 
+
 # ==========================================
 # GET GENERATED QUIZ
 # ==========================================
@@ -283,7 +377,9 @@ def get_material_quiz(
 
     questions = (
         db.query(QuizQuestion)
-        .filter(QuizQuestion.material_id == material_id)
+        .filter(
+            QuizQuestion.material_id == material_id
+        )
         .order_by(QuizQuestion.id.asc())
         .all()
     )
@@ -309,6 +405,7 @@ def get_material_quiz(
             for question in questions
         ]
     }
+
 
 # ==========================================
 # SUBMIT QUIZ AND CALCULATE SCORE
@@ -338,7 +435,9 @@ def submit_quiz(
 
     questions = (
         db.query(QuizQuestion)
-        .filter(QuizQuestion.material_id == material_id)
+        .filter(
+            QuizQuestion.material_id == material_id
+        )
         .all()
     )
 
@@ -368,8 +467,8 @@ def submit_quiz(
             continue
 
         is_correct = (
-            submitted_answer.answer.upper()
-            == question.correct_answer.upper()
+            submitted_answer.answer.strip().upper()
+            == question.correct_answer.strip().upper()
         )
 
         if is_correct:
@@ -411,58 +510,56 @@ def submit_quiz(
         "wrong_answers": wrong_answers,
         "results": results
     }
+
 # ==========================================
-# GET QUIZ PROGRESS
+# DELETE STUDY MATERIAL
 # ==========================================
 
-@router.get("/progress")
-def get_progress(
+@router.delete("/{material_id}")
+def delete_material(
+    material_id: int,
     db: Session = Depends(get_db),
     current_user=Depends(get_current_user)
 ):
-    results = (
-        db.query(QuizResult)
-        .filter(QuizResult.user_id == current_user.id)
-        .order_by(QuizResult.id.desc())
-        .all()
+    material = (
+        db.query(StudyMaterial)
+        .filter(
+            StudyMaterial.id == material_id,
+            StudyMaterial.user_id == current_user.id
+        )
+        .first()
     )
 
-    total_quizzes = len(results)
+    if not material:
+        raise HTTPException(
+            status_code=404,
+            detail="Study material not found"
+        )
 
-    if total_quizzes == 0:
-        return {
-            "total_quizzes": 0,
-            "average_score": 0,
-            "total_correct_answers": 0,
-            "total_wrong_answers": 0,
-            "quiz_results": []
-        }
+    # Delete uploaded PDF file
+    if material.file_path and os.path.exists(material.file_path):
+        os.remove(material.file_path)
 
-    total_score = sum(result.score for result in results)
-    average_score = round(total_score / total_quizzes)
+    # Delete related summaries
+    db.query(Summary).filter(
+        Summary.material_id == material_id
+    ).delete(synchronize_session=False)
 
-    total_correct = sum(
-        result.correct_answers for result in results
-    )
+    # Delete related quiz questions
+    db.query(QuizQuestion).filter(
+        QuizQuestion.material_id == material_id
+    ).delete(synchronize_session=False)
 
-    total_wrong = sum(
-        result.wrong_answers for result in results
-    )
+    # Delete related quiz results
+    db.query(QuizResult).filter(
+        QuizResult.material_id == material_id
+    ).delete(synchronize_session=False)
+
+    # Delete material
+    db.delete(material)
+    db.commit()
 
     return {
-        "total_quizzes": total_quizzes,
-        "average_score": average_score,
-        "total_correct_answers": total_correct,
-        "total_wrong_answers": total_wrong,
-        "quiz_results": [
-            {
-                "result_id": result.id,
-                "material_id": result.material_id,
-                "score": result.score,
-                "total_questions": result.total_questions,
-                "correct_answers": result.correct_answers,
-                "wrong_answers": result.wrong_answers
-            }
-            for result in results
-        ]
+        "message": "Study material deleted successfully",
+        "material_id": material_id
     }
