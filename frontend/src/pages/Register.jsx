@@ -4,27 +4,43 @@ function Register() {
   return (
     <div className="auth-page">
       <div className="auth-card">
-        <div className="logo">AI Study Assistant</div>
 
-        <h1>Create Account 🚀</h1>
+        <div className="logo">
+          AI Study Assistant
+        </div>
+
+        <h1>
+          Create Account 🚀
+        </h1>
+
         <p className="subtitle">
           Start your personalized learning journey
         </p>
 
         <form>
-          <label>Name</label>
+
+          <label>
+            Name
+          </label>
+
           <input
             type="text"
             placeholder="Enter your name"
           />
 
-          <label>Email</label>
+          <label>
+            Email
+          </label>
+
           <input
             type="email"
             placeholder="Enter your email"
           />
 
-          <label>Password</label>
+          <label>
+            Password
+          </label>
+
           <input
             type="password"
             placeholder="Create a password"
@@ -33,12 +49,16 @@ function Register() {
           <button type="submit">
             Create Account
           </button>
+
         </form>
 
         <p className="switch-text">
           Already have an account?{" "}
-          <Link to="/login">Login</Link>
+          <Link to="/login">
+            Login
+          </Link>
         </p>
+
       </div>
     </div>
   );
