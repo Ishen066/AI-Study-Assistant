@@ -1,4 +1,5 @@
 import os
+import json
 
 from dotenv import load_dotenv
 from openai import OpenAI
@@ -11,16 +12,20 @@ ENV_FILE = os.path.join(BASE_DIR, ".env")
 load_dotenv(ENV_FILE)
 
 
-# Get OpenRouter API key
+# OpenRouter API key
 OPENROUTER_API_KEY = os.getenv("OPENROUTER_API_KEY")
 
 
-# OpenRouter uses an OpenAI-compatible API
+# OpenRouter uses OpenAI-compatible API
 client = OpenAI(
     base_url="https://openrouter.ai/api/v1",
     api_key=OPENROUTER_API_KEY
 )
 
+
+# ==========================================
+# AI SUMMARY
+# ==========================================
 
 def generate_summary(text: str):
 
@@ -45,3 +50,49 @@ def generate_summary(text: str):
     )
 
     return response.choices[0].message.content
+
+
+# ==========================================
+# AI QUIZ GENERATION
+# ==========================================
+
+def generate_quiz(text: str, number_of_questions: int = 5):
+
+    response = client.chat.completions.create(
+        model="openrouter/free",
+        messages=[
+            {
+                "role": "system",
+                "content": (
+                    "You are an AI study assistant. "
+                    "Create multiple-choice questions from the student's "
+                    "study material. "
+                    "Use only information available in the provided material. "
+                    "Each question must have exactly four options: A, B, C, and D. "
+                    "Only one option should be correct. "
+                    "Return ONLY valid JSON. "
+                    "Do not include markdown or extra text. "
+                    "Use this exact JSON format: "
+                    '{"questions": ['
+                    '{"question": "Question text", '
+                    '"option_a": "Option A", '
+                    '"option_b": "Option B", '
+                    '"option_c": "Option C", '
+                    '"option_d": "Option D", '
+                    '"correct_answer": "A"}'
+                    "]}"
+                )
+            },
+            {
+                "role": "user",
+                "content": (
+                    f"Create {number_of_questions} multiple-choice questions "
+                    f"from this study material:\n\n{text}"
+                )
+            }
+        ]
+    )
+
+    result = response.choices[0].message.content
+
+    return json.loads(result)

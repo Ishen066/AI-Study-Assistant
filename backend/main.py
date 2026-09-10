@@ -5,6 +5,7 @@ from models.user import User
 from routers.auth import router as auth_router
 from models.study_material import StudyMaterial
 from models.summary import Summary
+from models.quiz import QuizQuestion
 from routers.materials import router as materials_router
 
 # Create database tables

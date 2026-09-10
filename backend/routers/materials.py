@@ -9,8 +9,9 @@ from pypdf import PdfReader
 from database import SessionLocal
 from models.summary import Summary
 from models.study_material import StudyMaterial
+from models.quiz import QuizQuestion
 from routers.auth import get_current_user
-from ai import generate_summary
+from ai import generate_summary, generate_quiz
 
 
 router = APIRouter(
@@ -170,4 +171,85 @@ def summarize_material(
         "summary_id": summary.id,
         "material_id": material.id,
         "summary": summary.summary_text
+    }
+
+
+# ==========================================
+# GENERATE AI QUIZ
+# ==========================================
+
+@router.post("/{material_id}/quiz")
+def generate_material_quiz(
+    material_id: int,
+    db: Session = Depends(get_db),
+    current_user=Depends(get_current_user)
+):
+    material = (
+        db.query(StudyMaterial)
+        .filter(
+            StudyMaterial.id == material_id,
+            StudyMaterial.user_id == current_user.id
+        )
+        .first()
+    )
+
+    if not material:
+        raise HTTPException(
+            status_code=404,
+            detail="Study material not found"
+        )
+
+    if not material.extracted_text:
+        raise HTTPException(
+            status_code=400,
+            detail="No text found in this PDF"
+        )
+
+    try:
+        quiz_data = generate_quiz(
+            material.extracted_text,
+            number_of_questions=5
+        )
+    except Exception:
+        raise HTTPException(
+            status_code=500,
+            detail="Failed to generate quiz"
+        )
+
+    saved_questions = []
+
+    for item in quiz_data["questions"]:
+        question = QuizQuestion(
+            material_id=material.id,
+            question=item["question"],
+            option_a=item["option_a"],
+            option_b=item["option_b"],
+            option_c=item["option_c"],
+            option_d=item["option_d"],
+            correct_answer=item["correct_answer"]
+        )
+
+        db.add(question)
+        saved_questions.append(question)
+
+    db.commit()
+
+    for question in saved_questions:
+        db.refresh(question)
+
+    return {
+        "message": "Quiz generated successfully",
+        "material_id": material.id,
+        "number_of_questions": len(saved_questions),
+        "questions": [
+            {
+                "id": question.id,
+                "question": question.question,
+                "option_a": question.option_a,
+                "option_b": question.option_b,
+                "option_c": question.option_c,
+                "option_d": question.option_d
+            }
+            for question in saved_questions
+        ]
     }
