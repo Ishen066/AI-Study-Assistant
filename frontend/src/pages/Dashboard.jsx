@@ -103,6 +103,7 @@ function Dashboard() {
 
           <button
             className="nav-item"
+            onClick={() => navigate("/quiz/4")}
           >
             <span>📝</span>
             Quizzes

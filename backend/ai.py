@@ -1,9 +1,14 @@
 import os
 import json
+import re
 
 from dotenv import load_dotenv
 from openai import OpenAI
 
+
+# ==========================================
+# LOAD ENVIRONMENT VARIABLES
+# ==========================================
 
 # Load backend/.env
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -12,11 +17,17 @@ ENV_FILE = os.path.join(BASE_DIR, ".env")
 load_dotenv(ENV_FILE)
 
 
-# OpenRouter API key
+# ==========================================
+# OPENROUTER API KEY
+# ==========================================
+
 OPENROUTER_API_KEY = os.getenv("OPENROUTER_API_KEY")
 
 
-# OpenRouter uses OpenAI-compatible API
+# ==========================================
+# OPENROUTER CLIENT
+# ==========================================
+
 client = OpenAI(
     base_url="https://openrouter.ai/api/v1",
     api_key=OPENROUTER_API_KEY
@@ -64,30 +75,54 @@ def generate_quiz(text: str, number_of_questions: int = 5):
             {
                 "role": "system",
                 "content": (
-                    "You are an AI study assistant. "
-                    "Create multiple-choice questions from the student's "
-                    "study material. "
-                    "Use only information available in the provided material. "
-                    "Each question must have exactly four options: A, B, C, and D. "
-                    "Only one option should be correct. "
-                    "Return ONLY valid JSON. "
-                    "Do not include markdown or extra text. "
-                    "Use this exact JSON format: "
-                    '{"questions": ['
-                    '{"question": "Question text", '
-                    '"option_a": "Option A", '
-                    '"option_b": "Option B", '
-                    '"option_c": "Option C", '
-                    '"option_d": "Option D", '
-                    '"correct_answer": "A"}'
-                    "]}"
+                    "You are an AI study assistant that creates "
+                    "multiple-choice quizzes for students.\n\n"
+
+                    "Create questions ONLY from the provided study material.\n\n"
+
+                    "Each question MUST contain exactly four options:\n"
+                    "A, B, C, and D.\n\n"
+
+                    "Only ONE option must be correct.\n\n"
+
+                    "The correct_answer field MUST contain only one "
+                    "letter: A, B, C, or D.\n\n"
+
+                    "Every question MUST contain these fields:\n"
+                    "- question\n"
+                    "- option_a\n"
+                    "- option_b\n"
+                    "- option_c\n"
+                    "- option_d\n"
+                    "- correct_answer\n\n"
+
+                    "Return ONLY valid JSON.\n"
+                    "Do NOT use Markdown.\n"
+                    "Do NOT use ```json.\n"
+                    "Do NOT include explanations outside the JSON.\n\n"
+
+                    "Use EXACTLY this JSON structure:\n\n"
+
+                    "{\n"
+                    '  "questions": [\n'
+                    "    {\n"
+                    '      "question": "Question text",\n'
+                    '      "option_a": "Option A",\n'
+                    '      "option_b": "Option B",\n'
+                    '      "option_c": "Option C",\n'
+                    '      "option_d": "Option D",\n'
+                    '      "correct_answer": "A"\n'
+                    "    }\n"
+                    "  ]\n"
+                    "}"
                 )
             },
             {
                 "role": "user",
                 "content": (
-                    f"Create {number_of_questions} multiple-choice questions "
-                    f"from this study material:\n\n{text}"
+                    f"Create exactly {number_of_questions} "
+                    "multiple-choice questions from this study material:\n\n"
+                    f"{text}"
                 )
             }
         ]
@@ -95,4 +130,106 @@ def generate_quiz(text: str, number_of_questions: int = 5):
 
     result = response.choices[0].message.content
 
-    return json.loads(result)
+    if not result:
+        raise ValueError("AI returned an empty quiz response")
+
+    result = result.strip()
+
+    # Remove Markdown code fences if the AI adds them
+    result = re.sub(
+        r"^```json\s*",
+        "",
+        result,
+        flags=re.IGNORECASE
+    )
+
+    result = re.sub(
+        r"^```\s*",
+        "",
+        result
+    )
+
+    result = re.sub(
+        r"\s*```$",
+        "",
+        result
+    )
+
+    # Convert AI response to Python dictionary
+    try:
+        quiz_data = json.loads(result)
+
+    except json.JSONDecodeError as e:
+
+        raise ValueError(
+            f"AI returned invalid JSON: {result[:500]}"
+        ) from e
+
+    # Check questions field
+    if "questions" not in quiz_data:
+
+        raise ValueError(
+            "AI response does not contain 'questions'"
+        )
+
+    questions = quiz_data["questions"]
+
+    if not isinstance(questions, list):
+
+        raise ValueError(
+            "'questions' must be a list"
+        )
+
+    if len(questions) == 0:
+
+        raise ValueError(
+            "AI returned no quiz questions"
+        )
+
+    # Required fields
+    required_fields = [
+        "question",
+        "option_a",
+        "option_b",
+        "option_c",
+        "option_d",
+        "correct_answer"
+    ]
+
+    # Validate every question
+    for index, question in enumerate(questions, start=1):
+
+        if not isinstance(question, dict):
+
+            raise ValueError(
+                f"Question {index} is not a valid object"
+            )
+
+        # Check required fields
+        for field in required_fields:
+
+            if field not in question:
+
+                raise ValueError(
+                    f"Question {index} is missing field: {field}"
+                )
+
+        # Normalize correct answer
+        correct_answer = str(
+            question["correct_answer"]
+        ).strip().upper()
+
+        # Check correct answer
+        if correct_answer not in ["A", "B", "C", "D"]:
+
+            raise ValueError(
+                f"Question {index} has invalid "
+                f"correct_answer: {correct_answer}"
+            )
+
+        question["correct_answer"] = correct_answer
+
+    # Return validated quiz data
+    return {
+        "questions": questions
+    }

@@ -10,6 +10,7 @@ import Login from "./pages/Login";
 import Register from "./pages/Register";
 import Dashboard from "./pages/Dashboard";
 import StudyMaterials from "./pages/StudyMaterials";
+import Quiz from "./pages/Quiz";
 
 function App() {
   return (
@@ -37,6 +38,10 @@ function App() {
         <Route
           path="/materials"
           element={<StudyMaterials />}
+        />
+        <Route
+          path="/quiz/:materialId"
+          element={<Quiz />}
         />
 
       </Routes>
