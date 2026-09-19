@@ -39,6 +39,10 @@ function Dashboard() {
     navigate("/login");
   };
 
+  const goToMaterials = () => {
+    navigate("/materials");
+  };
+
   if (!user) {
     return (
       <div className="dashboard-loading">
@@ -51,61 +55,110 @@ function Dashboard() {
   return (
     <div className="dashboard-page">
 
-      {/* Sidebar */}
+      {/* ================================
+          SIDEBAR
+      ================================= */}
+
       <aside className="sidebar">
 
         <div className="sidebar-logo">
-          <div className="logo-icon">AI</div>
+
+          <div className="logo-icon">
+            AI
+          </div>
 
           <div>
             <h2>Study Assistant</h2>
             <span>AI Powered Learning</span>
           </div>
+
         </div>
+
 
         <nav className="sidebar-nav">
 
-          <button className="nav-item active">
+          {/* Dashboard */}
+
+          <button
+            className="nav-item active"
+            onClick={() => navigate("/dashboard")}
+          >
             <span>🏠</span>
             Dashboard
           </button>
 
-          <button className="nav-item">
+
+          {/* Study Materials */}
+
+          <button
+            className="nav-item"
+            onClick={goToMaterials}
+          >
             <span>📚</span>
             Study Materials
           </button>
 
-          <button className="nav-item">
+
+          {/* Quizzes */}
+
+          <button
+            className="nav-item"
+          >
             <span>📝</span>
             Quizzes
           </button>
 
-          <button className="nav-item">
+
+          {/* Progress */}
+
+          <button
+            className="nav-item"
+          >
             <span>📊</span>
             Progress
           </button>
 
-          <button className="nav-item">
+
+          {/* Weak Topics */}
+
+          <button
+            className="nav-item"
+          >
             <span>🧠</span>
             Weak Topics
           </button>
 
-          <button className="nav-item">
+
+          {/* Study Planner */}
+
+          <button
+            className="nav-item"
+          >
             <span>📅</span>
             Study Planner
           </button>
 
         </nav>
 
+
+        {/* Sidebar Bottom */}
+
         <div className="sidebar-bottom">
 
           <div className="sidebar-help">
+
             <span>💡</span>
+
             <div>
               <strong>Need help?</strong>
-              <p>Ask your AI Study Assistant.</p>
+
+              <p>
+                Ask your AI Study Assistant.
+              </p>
             </div>
+
           </div>
+
 
           <button
             className="logout-button"
@@ -120,19 +173,35 @@ function Dashboard() {
       </aside>
 
 
-      {/* Main Content */}
+      {/* ================================
+          MAIN CONTENT
+      ================================= */}
+
       <main className="dashboard-main">
 
-        {/* Top bar */}
+
+        {/* Top Bar */}
+
         <header className="dashboard-topbar">
 
           <div>
-            <p className="page-label">STUDENT DASHBOARD</p>
-            <h1>Good to see you, {user.name} 👋</h1>
+
+            <p className="page-label">
+              STUDENT DASHBOARD
+            </p>
+
+            <h1>
+              Good to see you, {user.name} 👋
+            </h1>
+
             <p className="topbar-subtitle">
               Keep learning, keep improving.
             </p>
+
           </div>
+
+
+          {/* User Profile */}
 
           <div className="user-profile">
 
@@ -141,8 +210,15 @@ function Dashboard() {
             </div>
 
             <div className="user-info">
-              <strong>{user.name}</strong>
-              <span>{user.email}</span>
+
+              <strong>
+                {user.name}
+              </strong>
+
+              <span>
+                {user.email}
+              </span>
+
             </div>
 
           </div>
@@ -150,7 +226,10 @@ function Dashboard() {
         </header>
 
 
-        {/* Welcome Banner */}
+        {/* ================================
+            WELCOME BANNER
+        ================================= */}
+
         <section className="welcome-banner">
 
           <div className="welcome-content">
@@ -166,17 +245,26 @@ function Dashboard() {
             </h2>
 
             <p>
-              Upload your study materials, generate AI summaries,
-              practice with quizzes, and track your progress.
+              Upload your study materials, generate AI
+              summaries, practice with quizzes, and
+              track your progress.
             </p>
 
-            <button className="primary-banner-button">
+
+            <button
+              className="primary-banner-button"
+              onClick={goToMaterials}
+            >
               Start Studying →
             </button>
 
           </div>
 
+
+          {/* Banner Visual */}
+
           <div className="banner-visual">
+
             <div className="brain-circle">
               🧠
             </div>
@@ -195,98 +283,176 @@ function Dashboard() {
               📈
               <span>Progress</span>
             </div>
+
           </div>
 
         </section>
 
 
-        {/* Stats */}
+        {/* ================================
+            STATS
+        ================================= */}
+
         <section className="stats-grid">
 
+
+          {/* Study Materials */}
+
           <div className="stat-card">
+
             <div className="stat-icon blue">
               📚
             </div>
 
             <div>
-              <span>Study Materials</span>
-              <h3>0</h3>
+
+              <span>
+                Study Materials
+              </span>
+
+              <h3>
+                0
+              </h3>
+
             </div>
+
           </div>
 
+
+          {/* Quizzes */}
+
           <div className="stat-card">
+
             <div className="stat-icon purple">
               📝
             </div>
 
             <div>
-              <span>Quizzes Completed</span>
-              <h3>0</h3>
+
+              <span>
+                Quizzes Completed
+              </span>
+
+              <h3>
+                0
+              </h3>
+
             </div>
+
           </div>
 
+
+          {/* Average Score */}
+
           <div className="stat-card">
+
             <div className="stat-icon green">
               🎯
             </div>
 
             <div>
-              <span>Average Score</span>
-              <h3>0%</h3>
+
+              <span>
+                Average Score
+              </span>
+
+              <h3>
+                0%
+              </h3>
+
             </div>
+
           </div>
 
+
+          {/* Study Streak */}
+
           <div className="stat-card">
+
             <div className="stat-icon orange">
               🔥
             </div>
 
             <div>
-              <span>Study Streak</span>
-              <h3>0 days</h3>
+
+              <span>
+                Study Streak
+              </span>
+
+              <h3>
+                0 days
+              </h3>
+
             </div>
+
           </div>
 
         </section>
 
 
-        {/* Main Cards */}
+        {/* ================================
+            LEARNING TOOLS
+        ================================= */}
+
         <section className="dashboard-section">
 
           <div className="section-heading">
+
             <div>
-              <h2>Learning Tools</h2>
-              <p>Everything you need for smarter studying.</p>
+
+              <h2>
+                Learning Tools
+              </h2>
+
+              <p>
+                Everything you need for smarter studying.
+              </p>
+
             </div>
+
           </div>
 
 
           <div className="tools-grid">
 
+
+            {/* Study Materials */}
+
             <div className="tool-card">
+
               <div className="tool-icon blue-icon">
                 📚
               </div>
 
-              <h3>Study Materials</h3>
+              <h3>
+                Study Materials
+              </h3>
 
               <p>
                 Upload lecture notes and PDFs to start
                 your AI-powered learning experience.
               </p>
 
-              <button>
+              <button
+                onClick={goToMaterials}
+              >
                 Explore →
               </button>
+
             </div>
 
 
+            {/* AI Quizzes */}
+
             <div className="tool-card">
+
               <div className="tool-icon purple-icon">
                 📝
               </div>
 
-              <h3>AI Quizzes</h3>
+              <h3>
+                AI Quizzes
+              </h3>
 
               <p>
                 Test your understanding with quizzes
@@ -296,15 +462,21 @@ function Dashboard() {
               <button>
                 Take Quiz →
               </button>
+
             </div>
 
 
+            {/* Progress */}
+
             <div className="tool-card">
+
               <div className="tool-icon green-icon">
                 📊
               </div>
 
-              <h3>Track Progress</h3>
+              <h3>
+                Track Progress
+              </h3>
 
               <p>
                 Monitor your scores and understand
@@ -314,15 +486,21 @@ function Dashboard() {
               <button>
                 View Progress →
               </button>
+
             </div>
 
 
+            {/* Weak Topics */}
+
             <div className="tool-card">
+
               <div className="tool-icon orange-icon">
                 🧠
               </div>
 
-              <h3>Weak Topics</h3>
+              <h3>
+                Weak Topics
+              </h3>
 
               <p>
                 Discover topics that need more practice
@@ -332,6 +510,7 @@ function Dashboard() {
               <button>
                 View Topics →
               </button>
+
             </div>
 
           </div>
@@ -339,69 +518,154 @@ function Dashboard() {
         </section>
 
 
-        {/* Bottom section */}
+        {/* ================================
+            BOTTOM SECTION
+        ================================= */}
+
         <section className="bottom-grid">
+
+
+          {/* Recent Activity */}
 
           <div className="recent-card">
 
             <div className="section-heading">
+
               <div>
-                <h2>Recent Activity</h2>
-                <p>Your latest learning activity.</p>
+
+                <h2>
+                  Recent Activity
+                </h2>
+
+                <p>
+                  Your latest learning activity.
+                </p>
+
               </div>
+
             </div>
 
-            <div className="empty-state">
-              <div>📖</div>
 
-              <h3>No activity yet</h3>
+            <div className="empty-state">
+
+              <div>
+                📖
+              </div>
+
+              <h3>
+                No activity yet
+              </h3>
 
               <p>
                 Upload your first study material
                 to get started.
               </p>
 
-              <button>
+              <button
+                onClick={goToMaterials}
+              >
                 Upload Material
               </button>
+
             </div>
 
           </div>
 
 
+          {/* Quick Start */}
+
           <div className="quick-card">
 
             <div className="section-heading">
+
               <div>
-                <h2>Quick Start</h2>
-                <p>Start your next study session.</p>
+
+                <h2>
+                  Quick Start
+                </h2>
+
+                <p>
+                  Start your next study session.
+                </p>
+
               </div>
+
             </div>
+
 
             <div className="quick-list">
 
-              <div className="quick-item">
-                <span>📤</span>
+
+              {/* Upload */}
+
+              <div
+                className="quick-item"
+                onClick={goToMaterials}
+                style={{ cursor: "pointer" }}
+              >
+
+                <span>
+                  📤
+                </span>
+
                 <div>
-                  <strong>Upload Material</strong>
-                  <p>Add a PDF or lecture note</p>
+
+                  <strong>
+                    Upload Material
+                  </strong>
+
+                  <p>
+                    Add a PDF or lecture note
+                  </p>
+
                 </div>
+
               </div>
 
-              <div className="quick-item">
-                <span>✨</span>
-                <div>
-                  <strong>Generate Summary</strong>
-                  <p>Let AI create short notes</p>
-                </div>
-              </div>
+
+              {/* Summary */}
 
               <div className="quick-item">
-                <span>🎯</span>
+
+                <span>
+                  ✨
+                </span>
+
                 <div>
-                  <strong>Take a Quiz</strong>
-                  <p>Test what you have learned</p>
+
+                  <strong>
+                    Generate Summary
+                  </strong>
+
+                  <p>
+                    Let AI create short notes
+                  </p>
+
                 </div>
+
+              </div>
+
+
+              {/* Quiz */}
+
+              <div className="quick-item">
+
+                <span>
+                  🎯
+                </span>
+
+                <div>
+
+                  <strong>
+                    Take a Quiz
+                  </strong>
+
+                  <p>
+                    Test what you have learned
+                  </p>
+
+                </div>
+
               </div>
 
             </div>

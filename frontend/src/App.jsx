@@ -9,6 +9,7 @@ import {
 import Login from "./pages/Login";
 import Register from "./pages/Register";
 import Dashboard from "./pages/Dashboard";
+import StudyMaterials from "./pages/StudyMaterials";
 
 function App() {
   return (
@@ -33,7 +34,11 @@ function App() {
           path="/dashboard"
           element={<Dashboard />}
         />
-        
+        <Route
+          path="/materials"
+          element={<StudyMaterials />}
+        />
+
       </Routes>
     </BrowserRouter>
   );
