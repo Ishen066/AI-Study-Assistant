@@ -238,11 +238,7 @@ function Dashboard() {
 
           <button
             className="nav-item"
-            onClick={() => {
-              alert(
-                "Weak Topics feature will be available soon."
-              );
-            }}
+            onClick={() => navigate("/weak-topics")}
           >
             <span>🧠</span>
             Weak Topics
@@ -761,13 +757,7 @@ function Dashboard() {
                 and focus your study time effectively.
               </p>
 
-              <button
-                onClick={() => {
-                  alert(
-                    "Weak Topics feature will be available soon."
-                  );
-                }}
-              >
+              <button onClick={() => navigate("/weak-topics")}>
                 View Topics →
               </button>
 

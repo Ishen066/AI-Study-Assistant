@@ -2046,3 +2046,339 @@ form button:hover {
     text-align: left;
   }
 }
+
+/* =========================================
+   WEAK TOPICS PAGE
+========================================= */
+
+.weak-topics-page {
+  min-height: 100vh;
+  background: #f5f7fb;
+  padding: 40px 50px;
+  box-sizing: border-box;
+}
+
+.weak-topics-header {
+  max-width: 1200px;
+  margin: 0 auto 35px;
+
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 25px;
+}
+
+.weak-topics-header .page-label {
+  margin: 0 0 8px;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 1.5px;
+  color: #7c3aed;
+}
+
+.weak-topics-header h1 {
+  margin: 0;
+  font-size: 34px;
+  font-weight: 700;
+  color: #171923;
+}
+
+.weak-topics-header > div > p:last-child {
+  margin: 10px 0 0;
+  color: #6b7280;
+  font-size: 15px;
+}
+
+/* Back Button */
+
+.back-button {
+  border: none;
+  background: #ffffff;
+  color: #374151;
+
+  padding: 12px 18px;
+  border-radius: 10px;
+
+  font-size: 14px;
+  font-weight: 600;
+
+  cursor: pointer;
+
+  box-shadow: 0 4px 15px rgba(15, 23, 42, 0.06);
+
+  transition: all 0.2s ease;
+}
+
+.back-button:hover {
+  background: #171923;
+  color: #ffffff;
+  transform: translateY(-1px);
+}
+
+/* Error */
+
+.weak-topics-error {
+  max-width: 1200px;
+  margin: 0 auto 25px;
+
+  padding: 16px 20px;
+
+  border-radius: 12px;
+
+  background: #fff1f2;
+  border: 1px solid #fecdd3;
+
+  color: #be123c;
+
+  font-size: 14px;
+  font-weight: 500;
+}
+
+/* Empty State */
+
+.weak-topics-empty {
+  max-width: 650px;
+  margin: 70px auto;
+
+  padding: 55px 40px;
+
+  background: #ffffff;
+  border-radius: 20px;
+
+  text-align: center;
+
+  box-shadow: 0 8px 30px rgba(15, 23, 42, 0.06);
+}
+
+.empty-icon {
+  width: 75px;
+  height: 75px;
+
+  margin: 0 auto 20px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  background: #f3e8ff;
+  border-radius: 50%;
+
+  font-size: 34px;
+}
+
+.weak-topics-empty h2 {
+  margin: 0 0 12px;
+
+  font-size: 24px;
+  color: #171923;
+}
+
+.weak-topics-empty p {
+  max-width: 500px;
+  margin: 0 auto 25px;
+
+  color: #6b7280;
+  line-height: 1.6;
+  font-size: 15px;
+}
+
+.weak-topics-empty button {
+  border: none;
+
+  padding: 12px 20px;
+
+  border-radius: 10px;
+
+  background: #7c3aed;
+  color: #ffffff;
+
+  font-size: 14px;
+  font-weight: 600;
+
+  cursor: pointer;
+
+  transition: all 0.2s ease;
+}
+
+.weak-topics-empty button:hover {
+  background: #6d28d9;
+  transform: translateY(-1px);
+}
+
+/* Topics Grid */
+
+.weak-topics-grid {
+  max-width: 1200px;
+  margin: 0 auto;
+
+  display: grid;
+
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+
+  gap: 24px;
+}
+
+/* Topic Card */
+
+.weak-topic-card {
+  background: #ffffff;
+
+  border-radius: 18px;
+
+  padding: 25px;
+
+  border: 1px solid #e8ebf2;
+
+  box-shadow: 0 6px 25px rgba(15, 23, 42, 0.05);
+
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.weak-topic-card:hover {
+  transform: translateY(-3px);
+
+  box-shadow: 0 12px 35px rgba(15, 23, 42, 0.09);
+}
+
+/* Card Top */
+
+.weak-topic-card-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  margin-bottom: 20px;
+}
+
+.weak-topic-icon {
+  width: 52px;
+  height: 52px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  border-radius: 14px;
+
+  background: #fff7ed;
+
+  font-size: 25px;
+}
+
+.wrong-count {
+  padding: 7px 12px;
+
+  border-radius: 20px;
+
+  background: #fff1f2;
+  color: #e11d48;
+
+  font-size: 12px;
+  font-weight: 700;
+}
+
+/* Topic Title */
+
+.weak-topic-card h2 {
+  margin: 0 0 22px;
+
+  font-size: 20px;
+  line-height: 1.35;
+
+  color: #171923;
+}
+
+/* Topic Description */
+
+.topic-section {
+  margin-bottom: 18px;
+}
+
+.topic-section h3,
+.recommendation-box h3 {
+  margin: 0 0 8px;
+
+  font-size: 13px;
+  font-weight: 700;
+
+  color: #374151;
+}
+
+.topic-section p,
+.recommendation-box p {
+  margin: 0;
+
+  color: #6b7280;
+
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+/* Recommendation */
+
+.recommendation-box {
+  padding: 16px;
+
+  border-radius: 12px;
+
+  background: #f5f3ff;
+
+  border: 1px solid #ede9fe;
+}
+
+.recommendation-box h3 {
+  color: #6d28d9;
+}
+
+/* Loading */
+
+.weak-topics-loading {
+  min-height: 100vh;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  background: #f5f7fb;
+
+  color: #6b7280;
+
+  font-size: 15px;
+}
+
+/* Responsive */
+
+@media (max-width: 900px) {
+  .weak-topics-page {
+    padding: 30px 25px;
+  }
+
+  .weak-topics-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 600px) {
+  .weak-topics-page {
+    padding: 25px 16px;
+  }
+
+  .weak-topics-header {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .weak-topics-header h1 {
+    font-size: 28px;
+  }
+
+  .back-button {
+    width: 100%;
+  }
+
+  .weak-topic-card {
+    padding: 20px;
+  }
+}
