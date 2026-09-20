@@ -249,11 +249,7 @@ function Dashboard() {
 
           <button
             className="nav-item"
-            onClick={() => {
-              alert(
-                "Study Planner feature will be available soon."
-              );
-            }}
+            onClick={() => navigate("/study-planner")}
           >
             <span>📅</span>
             Study Planner

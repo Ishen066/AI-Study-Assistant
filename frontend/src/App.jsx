@@ -13,6 +13,7 @@ import StudyMaterials from "./pages/StudyMaterials";
 import Quiz from "./pages/Quiz";
 import Progress from "./pages/Progress";
 import WeakTopics from "./pages/WeakTopics";
+import StudyPlanner from "./pages/StudyPlanner";
 
 function App() {
   return (
@@ -52,6 +53,10 @@ function App() {
         <Route 
           path="/weak-topics" 
           element={<WeakTopics />} 
+        />
+        <Route 
+          path="/study-planner" 
+          element={<StudyPlanner />} 
         />
 
       </Routes>
