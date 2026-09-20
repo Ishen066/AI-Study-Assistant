@@ -1,7 +1,10 @@
 import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import axios from "axios";
 
 function StudyMaterials() {
+  const navigate = useNavigate();
+
   const [materials, setMaterials] = useState([]);
   const [file, setFile] = useState(null);
 
@@ -10,6 +13,7 @@ function StudyMaterials() {
 
   const [uploading, setUploading] = useState(false);
   const [summarizingId, setSummarizingId] = useState(null);
+  const [deletingId, setDeletingId] = useState(null);
 
   const [summary, setSummary] = useState("");
   const [summaryMaterial, setSummaryMaterial] = useState(null);
@@ -36,12 +40,16 @@ function StudyMaterials() {
 
   useEffect(() => {
     if (!token) {
-      window.location.href = "/login";
+      navigate("/login");
       return;
     }
 
     loadMaterials();
   }, []);
+
+  // =========================
+  // UPLOAD MATERIAL
+  // =========================
 
   const handleUpload = async (e) => {
     e.preventDefault();
@@ -88,6 +96,10 @@ function StudyMaterials() {
     }
   };
 
+  // =========================
+  // GENERATE SUMMARY
+  // =========================
+
   const handleSummarize = async (material) => {
     setMessage("");
     setError("");
@@ -108,6 +120,11 @@ function StudyMaterials() {
 
       setSummary(response.data.summary);
       setSummaryMaterial(material);
+
+      window.scrollTo({
+        top: document.body.scrollHeight,
+        behavior: "smooth",
+      });
     } catch (err) {
       console.error(err);
 
@@ -120,35 +137,116 @@ function StudyMaterials() {
     }
   };
 
+  // =========================
+  // TAKE QUIZ
+  // =========================
+
+  const handleQuiz = (material) => {
+    navigate(`/quiz/${material.id}`);
+  };
+
+  // =========================
+  // DELETE MATERIAL
+  // =========================
+
+  const handleDelete = async (material) => {
+    const materialName =
+      material.title ||
+      material.filename ||
+      `Material #${material.id}`;
+
+    const confirmed = window.confirm(
+      `Are you sure you want to delete "${materialName}"?`
+    );
+
+    if (!confirmed) {
+      return;
+    }
+
+    setMessage("");
+    setError("");
+    setDeletingId(material.id);
+
+    try {
+      await axios.delete(
+        `http://127.0.0.1:8000/api/materials/${material.id}`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      setMessage("Study material deleted successfully. 🗑️");
+
+      // If deleted material was showing summary
+      if (summaryMaterial?.id === material.id) {
+        setSummary("");
+        setSummaryMaterial(null);
+      }
+
+      // Refresh materials
+      await loadMaterials();
+    } catch (err) {
+      console.error(err);
+
+      setError(
+        err.response?.data?.detail ||
+          "Failed to delete study material."
+      );
+    } finally {
+      setDeletingId(null);
+    }
+  };
+
+  // =========================
+  // CLEAR SUMMARY
+  // =========================
+
+  const clearSummary = () => {
+    setSummary("");
+    setSummaryMaterial(null);
+  };
+
   return (
     <div className="materials-page">
 
-      {/* Header */}
+      {/* =========================
+          HEADER
+      ========================= */}
 
       <div className="materials-header">
-        <div>
-          <p className="page-label">STUDY MATERIALS</p>
 
-          <h1>My Study Materials 📚</h1>
+        <div>
+
+          <p className="page-label">
+            STUDY MATERIALS
+          </p>
+
+          <h1>
+            My Study Materials 📚
+          </h1>
 
           <p>
             Upload your lecture notes and PDFs to start
             learning with AI.
           </p>
+
         </div>
 
         <button
           className="back-button"
-          onClick={() => {
-            window.location.href = "/dashboard";
-          }}
+          onClick={() => navigate("/dashboard")}
         >
           ← Dashboard
         </button>
+
       </div>
 
 
-      {/* Upload */}
+      {/* =========================
+          UPLOAD
+      ========================= */}
 
       <section className="upload-card">
 
@@ -158,7 +256,9 @@ function StudyMaterials() {
 
         <div className="upload-content">
 
-          <h2>Upload Study Material</h2>
+          <h2>
+            Upload Study Material
+          </h2>
 
           <p>
             Select a PDF file containing your lecture notes
@@ -191,7 +291,10 @@ function StudyMaterials() {
 
           {file && (
             <p className="selected-file">
-              Selected: <strong>{file.name}</strong>
+              Selected:{" "}
+              <strong>
+                {file.name}
+              </strong>
             </p>
           )}
 
@@ -212,20 +315,28 @@ function StudyMaterials() {
       </section>
 
 
-      {/* Materials */}
+      {/* =========================
+          MATERIALS
+      ========================= */}
 
       <section className="materials-section">
 
         <div className="section-heading">
 
           <div>
-            <h2>Your Materials</h2>
+
+            <h2>
+              Your Materials
+            </h2>
 
             <p>
               {materials.length} material
-              {materials.length !== 1 ? "s" : ""}
+              {materials.length !== 1
+                ? "s"
+                : ""}
               {" "}uploaded
             </p>
+
           </div>
 
         </div>
@@ -261,10 +372,14 @@ function StudyMaterials() {
                 key={material.id}
               >
 
+                {/* Material Icon */}
+
                 <div className="material-icon">
                   📄
                 </div>
 
+
+                {/* Material Information */}
 
                 <div className="material-info">
 
@@ -281,19 +396,61 @@ function StudyMaterials() {
                 </div>
 
 
-                <button
-                  className="material-button"
-                  onClick={() =>
-                    handleSummarize(material)
-                  }
-                  disabled={
-                    summarizingId === material.id
-                  }
-                >
-                  {summarizingId === material.id
-                    ? "Generating..."
-                    : "✨ Summary"}
-                </button>
+                {/* Buttons */}
+
+                <div className="material-actions">
+
+                  {/* Summary */}
+
+                  <button
+                    className="material-button"
+                    onClick={() =>
+                      handleSummarize(material)
+                    }
+                    disabled={
+                      summarizingId === material.id ||
+                      deletingId === material.id
+                    }
+                  >
+                    {summarizingId === material.id
+                      ? "Generating..."
+                      : "✨ Summary"}
+                  </button>
+
+
+                  {/* Quiz */}
+
+                  <button
+                    className="material-button quiz-material-button"
+                    onClick={() =>
+                      handleQuiz(material)
+                    }
+                    disabled={
+                      deletingId === material.id
+                    }
+                  >
+                    📝 Take Quiz
+                  </button>
+
+
+                  {/* Delete */}
+
+                  <button
+                    className="material-button delete-material-button"
+                    onClick={() =>
+                      handleDelete(material)
+                    }
+                    disabled={
+                      deletingId === material.id ||
+                      summarizingId === material.id
+                    }
+                  >
+                    {deletingId === material.id
+                      ? "Deleting..."
+                      : "🗑️ Delete"}
+                  </button>
+
+                </div>
 
               </div>
 
@@ -306,7 +463,9 @@ function StudyMaterials() {
       </section>
 
 
-      {/* AI Summary */}
+      {/* =========================
+          AI SUMMARY
+      ========================= */}
 
       {summary && (
 
@@ -319,6 +478,7 @@ function StudyMaterials() {
             </div>
 
             <div>
+
               <p className="page-label">
                 AI GENERATED
               </p>
@@ -343,8 +503,35 @@ function StudyMaterials() {
           </div>
 
 
+          {/* Summary Text */}
+
           <div className="summary-content">
             {summary}
+          </div>
+
+
+          {/* Summary Actions */}
+
+          <div className="summary-actions">
+
+            <button
+              className="back-button"
+              onClick={clearSummary}
+            >
+              ✕ Close Summary
+            </button>
+
+            {summaryMaterial && (
+              <button
+                className="generate-quiz-button"
+                onClick={() =>
+                  handleQuiz(summaryMaterial)
+                }
+              >
+                📝 Take Quiz
+              </button>
+            )}
+
           </div>
 
         </section>

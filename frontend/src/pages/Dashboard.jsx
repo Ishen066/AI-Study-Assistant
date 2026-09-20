@@ -3,7 +3,19 @@ import { useNavigate } from "react-router-dom";
 
 function Dashboard() {
   const navigate = useNavigate();
+
   const [user, setUser] = useState(null);
+
+  const [dashboardStats, setDashboardStats] = useState({
+    totalMaterials: 0,
+    totalQuizzes: 0,
+    averageScore: 0,
+    totalCorrect: 0,
+    totalWrong: 0,
+    quizResults: [],
+  });
+
+  const [loadingStats, setLoadingStats] = useState(true);
 
   useEffect(() => {
     const token = localStorage.getItem("access_token");
@@ -12,6 +24,10 @@ function Dashboard() {
       navigate("/login");
       return;
     }
+
+    // ==========================================
+    // LOAD LOGGED-IN USER
+    // ==========================================
 
     fetch("http://127.0.0.1:8000/api/auth/me", {
       headers: {
@@ -32,16 +48,109 @@ function Dashboard() {
         localStorage.removeItem("access_token");
         navigate("/login");
       });
+
+    // ==========================================
+    // LOAD STUDY MATERIALS
+    // ==========================================
+
+    fetch("http://127.0.0.1:8000/api/materials/", {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    })
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error("Failed to load materials");
+        }
+
+        return response.json();
+      })
+      .then((materials) => {
+        setDashboardStats((previous) => ({
+          ...previous,
+          totalMaterials: materials.length,
+        }));
+      })
+      .catch((error) => {
+        console.error("Failed to load materials:", error);
+      });
+
+    // ==========================================
+    // LOAD QUIZ PROGRESS
+    // ==========================================
+
+    fetch("http://127.0.0.1:8000/api/materials/progress", {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    })
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error("Failed to load progress");
+        }
+
+        return response.json();
+      })
+      .then((progress) => {
+        setDashboardStats((previous) => ({
+          ...previous,
+          totalQuizzes: progress.total_quizzes || 0,
+          averageScore: progress.average_score || 0,
+          totalCorrect: progress.total_correct_answers || 0,
+          totalWrong: progress.total_wrong_answers || 0,
+          quizResults: progress.quiz_results || [],
+        }));
+      })
+      .catch((error) => {
+        console.error("Failed to load progress:", error);
+      })
+      .finally(() => {
+        setLoadingStats(false);
+      });
   }, [navigate]);
+
+  // ==========================================
+  // LOGOUT
+  // ==========================================
 
   const handleLogout = () => {
     localStorage.removeItem("access_token");
     navigate("/login");
   };
 
+  // ==========================================
+  // NAVIGATION
+  // ==========================================
+
   const goToMaterials = () => {
     navigate("/materials");
   };
+
+  const goToQuiz = () => {
+    if (dashboardStats.quizResults.length > 0) {
+      const latestQuiz = dashboardStats.quizResults[0];
+
+      navigate(`/quiz/${latestQuiz.material_id}`);
+    } else {
+      navigate("/materials");
+    }
+  };
+
+  const goToQuizResult = (materialId) => {
+    navigate(`/quiz/${materialId}`);
+  };
+
+  // ==========================================
+  // GO TO SEPARATE PROGRESS PAGE
+  // ==========================================
+
+  const goToProgress = () => {
+    navigate("/progress");
+  };
+
+  // ==========================================
+  // LOADING
+  // ==========================================
 
   if (!user) {
     return (
@@ -61,6 +170,8 @@ function Dashboard() {
 
       <aside className="sidebar">
 
+        {/* Logo */}
+
         <div className="sidebar-logo">
 
           <div className="logo-icon">
@@ -74,6 +185,8 @@ function Dashboard() {
 
         </div>
 
+
+        {/* Navigation */}
 
         <nav className="sidebar-nav">
 
@@ -103,7 +216,7 @@ function Dashboard() {
 
           <button
             className="nav-item"
-            onClick={() => navigate("/quiz/4")}
+            onClick={goToQuiz}
           >
             <span>📝</span>
             Quizzes
@@ -114,6 +227,7 @@ function Dashboard() {
 
           <button
             className="nav-item"
+            onClick={goToProgress}
           >
             <span>📊</span>
             Progress
@@ -124,6 +238,11 @@ function Dashboard() {
 
           <button
             className="nav-item"
+            onClick={() => {
+              alert(
+                "Weak Topics feature will be available soon."
+              );
+            }}
           >
             <span>🧠</span>
             Weak Topics
@@ -134,6 +253,11 @@ function Dashboard() {
 
           <button
             className="nav-item"
+            onClick={() => {
+              alert(
+                "Study Planner feature will be available soon."
+              );
+            }}
           >
             <span>📅</span>
             Study Planner
@@ -251,7 +375,6 @@ function Dashboard() {
               track your progress.
             </p>
 
-
             <button
               className="primary-banner-button"
               onClick={goToMaterials}
@@ -312,7 +435,9 @@ function Dashboard() {
               </span>
 
               <h3>
-                0
+                {loadingStats
+                  ? "..."
+                  : dashboardStats.totalMaterials}
               </h3>
 
             </div>
@@ -335,7 +460,9 @@ function Dashboard() {
               </span>
 
               <h3>
-                0
+                {loadingStats
+                  ? "..."
+                  : dashboardStats.totalQuizzes}
               </h3>
 
             </div>
@@ -358,7 +485,9 @@ function Dashboard() {
               </span>
 
               <h3>
-                0%
+                {loadingStats
+                  ? "..."
+                  : `${dashboardStats.averageScore}%`}
               </h3>
 
             </div>
@@ -366,23 +495,143 @@ function Dashboard() {
           </div>
 
 
-          {/* Study Streak */}
+          {/* Correct Answers */}
 
           <div className="stat-card">
 
             <div className="stat-icon orange">
-              🔥
+              ✅
             </div>
 
             <div>
 
               <span>
-                Study Streak
+                Correct Answers
               </span>
 
               <h3>
-                0 days
+                {loadingStats
+                  ? "..."
+                  : dashboardStats.totalCorrect}
               </h3>
+
+            </div>
+
+          </div>
+
+        </section>
+
+
+        {/* ================================
+            PROGRESS OVERVIEW
+        ================================= */}
+
+        <section
+          className="dashboard-section progress-overview"
+        >
+
+          <div className="section-heading">
+
+            <div>
+
+              <h2>
+                Learning Progress
+              </h2>
+
+              <p>
+                A quick overview of your quiz performance.
+              </p>
+
+            </div>
+
+            <button
+              className="view-progress-button"
+              onClick={goToProgress}
+            >
+              View Full Progress →
+            </button>
+
+          </div>
+
+
+          <div className="progress-overview-grid">
+
+            {/* Average Score */}
+
+            <div className="progress-main-card">
+
+              <div className="progress-main-icon">
+                🎯
+              </div>
+
+              <div>
+
+                <span>
+                  Overall Average Score
+                </span>
+
+                <strong>
+                  {dashboardStats.averageScore}%
+                </strong>
+
+              </div>
+
+            </div>
+
+
+            {/* Quiz Count */}
+
+            <div className="progress-small-card">
+
+              <span>
+                Quizzes Completed
+              </span>
+
+              <strong>
+                {dashboardStats.totalQuizzes}
+              </strong>
+
+              <p>
+                Total quiz attempts
+              </p>
+
+            </div>
+
+
+            {/* Correct */}
+
+            <div className="progress-small-card">
+
+              <span>
+                Correct Answers
+              </span>
+
+              <strong>
+                {dashboardStats.totalCorrect}
+              </strong>
+
+              <p>
+                Answers answered correctly
+              </p>
+
+            </div>
+
+
+            {/* Wrong */}
+
+            <div className="progress-small-card">
+
+              <span>
+                Wrong Answers
+              </span>
+
+              <strong>
+                {dashboardStats.totalWrong}
+              </strong>
+
+              <p>
+                Answers that need more practice
+              </p>
 
             </div>
 
@@ -460,7 +709,9 @@ function Dashboard() {
                 generated from your study materials.
               </p>
 
-              <button>
+              <button
+                onClick={goToQuiz}
+              >
                 Take Quiz →
               </button>
 
@@ -484,7 +735,9 @@ function Dashboard() {
                 how your learning is improving.
               </p>
 
-              <button>
+              <button
+                onClick={goToProgress}
+              >
                 View Progress →
               </button>
 
@@ -508,7 +761,13 @@ function Dashboard() {
                 and focus your study time effectively.
               </p>
 
-              <button>
+              <button
+                onClick={() => {
+                  alert(
+                    "Weak Topics feature will be available soon."
+                  );
+                }}
+              >
                 View Topics →
               </button>
 
@@ -520,13 +779,13 @@ function Dashboard() {
 
 
         {/* ================================
-            BOTTOM SECTION
+            QUIZ HISTORY
         ================================= */}
 
         <section className="bottom-grid">
 
 
-          {/* Recent Activity */}
+          {/* Quiz History */}
 
           <div className="recent-card">
 
@@ -535,11 +794,11 @@ function Dashboard() {
               <div>
 
                 <h2>
-                  Recent Activity
+                  Quiz History
                 </h2>
 
                 <p>
-                  Your latest learning activity.
+                  Your latest quiz performance.
                 </p>
 
               </div>
@@ -547,28 +806,88 @@ function Dashboard() {
             </div>
 
 
-            <div className="empty-state">
+            {dashboardStats.quizResults.length === 0 ? (
 
-              <div>
-                📖
+              <div className="empty-state">
+
+                <div>
+                  📖
+                </div>
+
+                <h3>
+                  No quiz history yet
+                </h3>
+
+                <p>
+                  Complete your first quiz to start
+                  tracking your progress.
+                </p>
+
+                <button
+                  onClick={goToMaterials}
+                >
+                  Start Studying
+                </button>
+
               </div>
 
-              <h3>
-                No activity yet
-              </h3>
+            ) : (
 
-              <p>
-                Upload your first study material
-                to get started.
-              </p>
+              <div className="recent-activity-list">
 
-              <button
-                onClick={goToMaterials}
-              >
-                Upload Material
-              </button>
+                {dashboardStats.quizResults
+                  .slice(0, 5)
+                  .map((result) => (
 
-            </div>
+                    <div
+                      className="recent-activity-item"
+                      key={result.result_id}
+                      onClick={() =>
+                        goToQuizResult(
+                          result.material_id
+                        )
+                      }
+                      style={{
+                        cursor: "pointer",
+                      }}
+                    >
+
+                      <div className="activity-icon">
+                        📝
+                      </div>
+
+                      <div className="activity-info">
+
+                        <strong>
+                          Quiz Completed
+                        </strong>
+
+                        <p>
+                          Material #{result.material_id}
+                        </p>
+
+                      </div>
+
+                      <div className="activity-score">
+
+                        <strong>
+                          {result.score}%
+                        </strong>
+
+                        <span>
+                          {result.correct_answers}/
+                          {result.total_questions}
+                        </span>
+
+                      </div>
+
+                    </div>
+
+                  ))}
+
+              </div>
+
+            )}
 
           </div>
 
@@ -602,7 +921,9 @@ function Dashboard() {
               <div
                 className="quick-item"
                 onClick={goToMaterials}
-                style={{ cursor: "pointer" }}
+                style={{
+                  cursor: "pointer",
+                }}
               >
 
                 <span>
@@ -626,7 +947,13 @@ function Dashboard() {
 
               {/* Summary */}
 
-              <div className="quick-item">
+              <div
+                className="quick-item"
+                onClick={goToMaterials}
+                style={{
+                  cursor: "pointer",
+                }}
+              >
 
                 <span>
                   ✨
@@ -649,7 +976,13 @@ function Dashboard() {
 
               {/* Quiz */}
 
-              <div className="quick-item">
+              <div
+                className="quick-item"
+                onClick={goToQuiz}
+                style={{
+                  cursor: "pointer",
+                }}
+              >
 
                 <span>
                   🎯
