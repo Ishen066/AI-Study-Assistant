@@ -2,13 +2,17 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from database import Base, engine
+
 from models.user import User
-from routers.auth import router as auth_router
 from models.study_material import StudyMaterial
 from models.summary import Summary
 from models.quiz import QuizQuestion
-from routers.materials import router as materials_router
 from models.quiz_result import QuizResult
+from models.weak_topic import WeakTopic
+
+from routers.auth import router as auth_router
+from routers.materials import router as materials_router
+from routers.weak_topics import router as weak_topics_router
 
 
 # Create database tables
@@ -39,8 +43,13 @@ app.add_middleware(
 # Authentication routes
 app.include_router(auth_router)
 
+
 # Study material routes
 app.include_router(materials_router)
+
+
+# Weak topics routes
+app.include_router(weak_topics_router)
 
 
 @app.get("/")

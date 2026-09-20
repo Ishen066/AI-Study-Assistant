@@ -233,3 +233,138 @@ def generate_quiz(text: str, number_of_questions: int = 5):
     return {
         "questions": questions
     }
+
+
+# ==========================================
+# AI WEAK TOPIC ANALYSIS
+# ==========================================
+
+def analyze_weak_topics(wrong_questions):
+
+    if not wrong_questions:
+        return {
+            "topics": []
+        }
+
+    questions_text = "\n".join(
+        [
+            f"{index + 1}. {question}"
+            for index, question in enumerate(wrong_questions)
+        ]
+    )
+
+    prompt = f"""
+Analyze the following incorrect quiz questions from a student's study material.
+
+Identify the main academic topics that the student appears to be weak in.
+
+Return ONLY valid JSON in this exact format:
+
+{{
+    "topics": [
+        {{
+            "topic": "Topic name",
+            "description": "Short explanation of why this topic needs practice",
+            "recommendation": "Short recommendation for improving this topic"
+        }}
+    ]
+}}
+
+Do not include markdown.
+Do not include explanations outside the JSON.
+
+Incorrect questions:
+
+{questions_text}
+"""
+
+    response = client.chat.completions.create(
+        model="openrouter/free",
+        messages=[
+            {
+                "role": "user",
+                "content": prompt
+            }
+        ]
+    )
+
+    content = response.choices[0].message.content
+
+    if not content:
+        raise ValueError(
+            "AI returned an empty weak topic response"
+        )
+
+    content = content.strip()
+
+    # Remove Markdown code fences if AI adds them
+    content = re.sub(
+        r"^```json\s*",
+        "",
+        content,
+        flags=re.IGNORECASE
+    )
+
+    content = re.sub(
+        r"^```\s*",
+        "",
+        content
+    )
+
+    content = re.sub(
+        r"\s*```$",
+        "",
+        content
+    )
+
+    # Convert AI response to Python dictionary
+    try:
+        weak_topic_data = json.loads(content)
+
+    except json.JSONDecodeError as e:
+
+        raise ValueError(
+            f"AI returned invalid weak topic JSON: {content[:500]}"
+        ) from e
+
+    # Check topics field
+    if "topics" not in weak_topic_data:
+
+        raise ValueError(
+            "AI response does not contain 'topics'"
+        )
+
+    topics = weak_topic_data["topics"]
+
+    if not isinstance(topics, list):
+
+        raise ValueError(
+            "'topics' must be a list"
+        )
+
+    # Validate every topic
+    required_topic_fields = [
+        "topic",
+        "description",
+        "recommendation"
+    ]
+
+    for index, topic in enumerate(topics, start=1):
+
+        if not isinstance(topic, dict):
+
+            raise ValueError(
+                f"Weak topic {index} is not a valid object"
+            )
+
+        for field in required_topic_fields:
+
+            if field not in topic:
+
+                raise ValueError(
+                    f"Weak topic {index} is missing field: {field}"
+                )
+
+    return {
+        "topics": topics
+    }
