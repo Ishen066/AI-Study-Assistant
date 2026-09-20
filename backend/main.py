@@ -9,10 +9,12 @@ from models.summary import Summary
 from models.quiz import QuizQuestion
 from models.quiz_result import QuizResult
 from models.weak_topic import WeakTopic
+from models.study_plan import StudyPlan
 
 from routers.auth import router as auth_router
 from routers.materials import router as materials_router
 from routers.weak_topics import router as weak_topics_router
+from routers.study_planner import router as study_planner_router
 
 
 # Create database tables
@@ -50,6 +52,10 @@ app.include_router(materials_router)
 
 # Weak topics routes
 app.include_router(weak_topics_router)
+
+
+# Study planner routes
+app.include_router(study_planner_router)
 
 
 @app.get("/")
