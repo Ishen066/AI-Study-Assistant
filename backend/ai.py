@@ -368,3 +368,27 @@ Incorrect questions:
     return {
         "topics": topics
     }
+
+def chat_with_assistant(message: str) -> str:
+    response = client.chat.completions.create(
+        model="openrouter/free",
+        messages=[
+            {
+                "role": "system",
+                "content": (
+                    "You are an AI Study Assistant for students. "
+                    "Help students understand academic topics clearly and simply. "
+                    "Give accurate, educational, and supportive explanations. "
+                    "When useful, explain difficult concepts step by step. "
+                    "Do not pretend to know information that is not provided. "
+                    "Keep answers focused on studying and learning."
+                )
+            },
+            {
+                "role": "user",
+                "content": message
+            }
+        ]
+    )
+
+    return response.choices[0].message.content

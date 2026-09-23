@@ -15,6 +15,7 @@ from routers.auth import router as auth_router
 from routers.materials import router as materials_router
 from routers.weak_topics import router as weak_topics_router
 from routers.study_planner import router as study_planner_router
+from routers.assistant import router as assistant_router
 
 
 # Create database tables
@@ -56,6 +57,10 @@ app.include_router(weak_topics_router)
 
 # Study planner routes
 app.include_router(study_planner_router)
+
+
+#ai assistant routes
+app.include_router(assistant_router)
 
 
 @app.get("/")
