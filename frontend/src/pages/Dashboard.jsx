@@ -137,6 +137,10 @@ function Dashboard() {
     navigate("/study-planner");
   };
 
+  const goToHelp = () => {
+  navigate("/help");
+  };
+
   if (!user) {
     return (
       <div className="dashboard-loading">
@@ -218,14 +222,17 @@ function Dashboard() {
 
         <div className="sidebar-bottom">
 
-          <div className="sidebar-help">
+          <button
+            className="sidebar-help"
+            onClick={goToHelp}
+          >
             <div className="help-icon">?</div>
 
             <div>
               <strong>Need help?</strong>
               <p>Ask your AI Study Assistant.</p>
             </div>
-          </div>
+          </button>
 
           <button
             className="logout-button"
