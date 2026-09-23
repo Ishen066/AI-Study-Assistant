@@ -49,17 +49,17 @@ function Progress() {
 
   if (loading) {
     return (
-      <div className="progress-loading">
-        <div className="loading-spinner"></div>
-        <p>Loading progress...</p>
+      <div className="pg-loading-page">
+        <div className="pg-spinner"></div>
+        <p>Loading your progress...</p>
       </div>
     );
   }
 
   if (error) {
     return (
-      <div className="progress-page">
-        <div className="progress-error">
+      <div className="pg-page">
+        <div className="pg-error">
           {error}
         </div>
       </div>
@@ -72,108 +72,207 @@ function Progress() {
   const totalWrong = progress?.total_wrong_answers || 0;
 
   return (
-    <div className="progress-page">
+    <div className="pg-page">
 
-      {/* Header */}
-      <div className="progress-header">
-        <div>
-          <p className="page-label">LEARNING PROGRESS</p>
+      {/* ================= HEADER ================= */}
 
-          <h1>Your Progress 📊</h1>
+      <div className="pg-header">
+
+        <div className="pg-header-content">
+
+          <span className="pg-label">
+            LEARNING PROGRESS
+          </span>
+
+          <h1>Your Progress</h1>
 
           <p>
-            Track your quiz performance and learning progress.
+            Track your quiz performance and see how your
+            learning is progressing.
           </p>
+
         </div>
 
         <button
-          className="back-button"
+          className="pg-back-button"
           onClick={() => navigate("/dashboard")}
         >
           ← Dashboard
         </button>
+
       </div>
 
-      {/* Main Stats */}
-      <div className="progress-stats-grid">
 
-        <div className="progress-stat-card">
-          <div className="progress-stat-icon">🎯</div>
+      {/* ================= STATS ================= */}
 
-          <div>
+      <div className="pg-stats">
+
+        <div className="pg-stat-card">
+
+          <div className="pg-stat-icon purple">
+            🎯
+          </div>
+
+          <div className="pg-stat-text">
             <span>Average Score</span>
             <strong>{averageScore}%</strong>
+            <small>Overall performance</small>
           </div>
+
         </div>
 
-        <div className="progress-stat-card">
-          <div className="progress-stat-icon">📝</div>
 
-          <div>
+        <div className="pg-stat-card">
+
+          <div className="pg-stat-icon blue">
+            📝
+          </div>
+
+          <div className="pg-stat-text">
             <span>Quizzes Completed</span>
             <strong>{totalQuizzes}</strong>
+            <small>Total attempts</small>
           </div>
+
         </div>
 
-        <div className="progress-stat-card">
-          <div className="progress-stat-icon">✅</div>
 
-          <div>
+        <div className="pg-stat-card">
+
+          <div className="pg-stat-icon green">
+            ✅
+          </div>
+
+          <div className="pg-stat-text">
             <span>Correct Answers</span>
             <strong>{totalCorrect}</strong>
+            <small>Questions answered correctly</small>
           </div>
+
         </div>
 
-        <div className="progress-stat-card">
-          <div className="progress-stat-icon">❌</div>
 
-          <div>
+        <div className="pg-stat-card">
+
+          <div className="pg-stat-icon red">
+            ❌
+          </div>
+
+          <div className="pg-stat-text">
             <span>Wrong Answers</span>
             <strong>{totalWrong}</strong>
+            <small>Questions to review</small>
           </div>
+
         </div>
 
       </div>
 
-      {/* Overall Progress */}
-      <div className="overall-progress-card">
 
-        <div className="section-heading">
+      {/* ================= OVERALL PERFORMANCE ================= */}
+
+      <section className="pg-card">
+
+        <div className="pg-section-header">
+
           <div>
-            <h2>Overall Performance</h2>
-            <p>Your average quiz performance</p>
+            <span className="pg-label">
+              OVERALL PERFORMANCE
+            </span>
+
+            <h2>Learning Overview</h2>
+
+            <p>
+              Your average score across completed quizzes.
+            </p>
           </div>
 
-          <strong>{averageScore}%</strong>
+          <div className="pg-big-score">
+            {averageScore}%
+          </div>
+
         </div>
 
-        <div className="progress-bar">
+
+        <div className="pg-progress-track">
           <div
-            className="progress-bar-fill"
-            style={{ width: `${averageScore}%` }}
+            className="pg-progress-fill"
+            style={{
+              width: `${Math.min(averageScore, 100)}%`,
+            }}
           ></div>
         </div>
 
-        <p className="progress-description">
-          You have completed {totalQuizzes} quiz
-          {totalQuizzes !== 1 ? "zes" : ""}.
-        </p>
 
-      </div>
+        <div className="pg-progress-scale">
+          <span>0%</span>
 
-      {/* Quiz History */}
-      <div className="quiz-history-section">
+          <span>
+            {averageScore >= 70
+              ? "Good Progress"
+              : "Keep Practicing"}
+          </span>
 
-        <div className="section-heading">
-          <div>
-            <h2>Quiz History</h2>
-            <p>Review your previous quiz results</p>
-          </div>
+          <span>100%</span>
         </div>
 
+
+        <div className="pg-learning-message">
+
+          <div className="pg-message-icon">
+            💡
+          </div>
+
+          <div>
+            <strong>
+              {averageScore >= 70
+                ? "Great work!"
+                : "Keep learning!"}
+            </strong>
+
+            <p>
+              You have completed {totalQuizzes} quiz
+              {totalQuizzes !== 1 ? "zes" : ""} so far.
+            </p>
+          </div>
+
+        </div>
+
+      </section>
+
+
+      {/* ================= QUIZ HISTORY ================= */}
+
+      <section className="pg-card">
+
+        <div className="pg-section-title-row">
+
+          <div>
+            <span className="pg-label">
+              ACTIVITY
+            </span>
+
+            <h2>Quiz History</h2>
+
+            <p>
+              Review your previous quiz results.
+            </p>
+          </div>
+
+          <span className="pg-result-count">
+            {progress?.quiz_results?.length || 0} results
+          </span>
+
+        </div>
+
+
         {progress?.quiz_results?.length === 0 ? (
-          <div className="empty-progress">
-            <div>📚</div>
+
+          <div className="pg-empty">
+
+            <div className="pg-empty-icon">
+              📚
+            </div>
 
             <h3>No quiz results yet</h3>
 
@@ -183,58 +282,121 @@ function Progress() {
             </p>
 
             <button
-              className="generate-quiz-button"
+              className="pg-primary-button"
               onClick={() => navigate("/materials")}
             >
-              Go to Study Materials
+              📚 Go to Study Materials
             </button>
+
           </div>
+
         ) : (
-          <div className="quiz-history-list">
+
+          <div className="pg-history">
 
             {progress.quiz_results.map((quiz) => (
+
               <div
-                className="progress-history-item"
+                className="pg-history-item"
                 key={quiz.result_id}
               >
 
-                <div className="history-left">
-                  <div className="history-icon">
+                <div className="pg-history-left">
+
+                  <div className="pg-history-icon">
                     📝
                   </div>
 
                   <div>
+
                     <h3>
                       Quiz - Material #{quiz.material_id}
                     </h3>
 
                     <p>
                       {quiz.correct_answers} correct
-                      {" • "}
+                      <span>•</span>
                       {quiz.wrong_answers} wrong
-                      {" • "}
+                      <span>•</span>
                       {quiz.total_questions} questions
                     </p>
+
                   </div>
+
                 </div>
 
-                <div className="history-score">
-                  <strong>{quiz.score}%</strong>
 
-                  <span>
+                <div className="pg-history-right">
+
+                  <strong>
+                    {quiz.score}%
+                  </strong>
+
+                  <span
+                    className={
+                      quiz.score >= 70
+                        ? "pg-good"
+                        : "pg-needs-practice"
+                    }
+                  >
                     {quiz.score >= 70
                       ? "Good performance"
-                      : "Keep practicing"}
+                      : "Needs Practice"}
                   </span>
+
                 </div>
 
               </div>
+
             ))}
 
           </div>
+
         )}
 
-      </div>
+      </section>
+
+
+      {/* ================= CONTINUE ================= */}
+
+      <section className="pg-continue">
+
+        <div>
+
+          <span className="pg-label">
+            KEEP GOING
+          </span>
+
+          <h2>
+            Continue Your Learning
+          </h2>
+
+          <p>
+            Practice more quizzes or review your study
+            materials to improve your performance.
+          </p>
+
+        </div>
+
+        <div className="pg-continue-buttons">
+
+          <button
+            className="pg-primary-button"
+            onClick={() => navigate("/materials")}
+          >
+            📚 Study Materials
+          </button>
+
+          <button
+            className="pg-secondary-button"
+            onClick={() => navigate("/weak-topics")}
+          >
+            💡 Weak Topics
+          </button>
+
+        </div>
+
+      </section>
 
     </div>
   );

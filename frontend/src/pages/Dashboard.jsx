@@ -25,10 +25,7 @@ function Dashboard() {
       return;
     }
 
-    // ==========================================
-    // LOAD LOGGED-IN USER
-    // ==========================================
-
+    // Load logged-in user
     fetch("http://127.0.0.1:8000/api/auth/me", {
       headers: {
         Authorization: `Bearer ${token}`,
@@ -49,10 +46,7 @@ function Dashboard() {
         navigate("/login");
       });
 
-    // ==========================================
-    // LOAD STUDY MATERIALS
-    // ==========================================
-
+    // Load study materials
     fetch("http://127.0.0.1:8000/api/materials/", {
       headers: {
         Authorization: `Bearer ${token}`,
@@ -75,10 +69,7 @@ function Dashboard() {
         console.error("Failed to load materials:", error);
       });
 
-    // ==========================================
-    // LOAD QUIZ PROGRESS
-    // ==========================================
-
+    // Load quiz progress
     fetch("http://127.0.0.1:8000/api/materials/progress", {
       headers: {
         Authorization: `Bearer ${token}`,
@@ -109,19 +100,13 @@ function Dashboard() {
       });
   }, [navigate]);
 
-  // ==========================================
-  // LOGOUT
-  // ==========================================
-
+  // Logout
   const handleLogout = () => {
     localStorage.removeItem("access_token");
     navigate("/login");
   };
 
-  // ==========================================
-  // NAVIGATION
-  // ==========================================
-
+  // Navigation
   const goToMaterials = () => {
     navigate("/materials");
   };
@@ -140,17 +125,17 @@ function Dashboard() {
     navigate(`/quiz/${materialId}`);
   };
 
-  // ==========================================
-  // GO TO SEPARATE PROGRESS PAGE
-  // ==========================================
-
   const goToProgress = () => {
     navigate("/progress");
   };
 
-  // ==========================================
-  // LOADING
-  // ==========================================
+  const goToWeakTopics = () => {
+    navigate("/weak-topics");
+  };
+
+  const goToStudyPlanner = () => {
+    navigate("/study-planner");
+  };
 
   if (!user) {
     return (
@@ -164,118 +149,83 @@ function Dashboard() {
   return (
     <div className="dashboard-page">
 
-      {/* ================================
+      {/* =========================
           SIDEBAR
-      ================================= */}
+      ========================== */}
 
       <aside className="sidebar">
 
-        {/* Logo */}
-
         <div className="sidebar-logo">
-
-          <div className="logo-icon">
-            AI
-          </div>
+          <div className="logo-icon">AI</div>
 
           <div>
             <h2>Study Assistant</h2>
             <span>AI Powered Learning</span>
           </div>
-
         </div>
 
-
-        {/* Navigation */}
-
         <nav className="sidebar-nav">
-
-          {/* Dashboard */}
 
           <button
             className="nav-item active"
             onClick={() => navigate("/dashboard")}
           >
-            <span>🏠</span>
+            <span>⌂</span>
             Dashboard
           </button>
-
-
-          {/* Study Materials */}
 
           <button
             className="nav-item"
             onClick={goToMaterials}
           >
-            <span>📚</span>
+            <span>▣</span>
             Study Materials
           </button>
-
-
-          {/* Quizzes */}
 
           <button
             className="nav-item"
             onClick={goToQuiz}
           >
-            <span>📝</span>
+            <span>✓</span>
             Quizzes
           </button>
-
-
-          {/* Progress */}
 
           <button
             className="nav-item"
             onClick={goToProgress}
           >
-            <span>📊</span>
+            <span>◫</span>
             Progress
           </button>
 
-
-          {/* Weak Topics */}
-
           <button
             className="nav-item"
-            onClick={() => navigate("/weak-topics")}
+            onClick={goToWeakTopics}
           >
-            <span>🧠</span>
+            <span>◈</span>
             Weak Topics
           </button>
 
-
-          {/* Study Planner */}
-
           <button
             className="nav-item"
-            onClick={() => navigate("/study-planner")}
+            onClick={goToStudyPlanner}
           >
-            <span>📅</span>
+            <span>□</span>
             Study Planner
           </button>
 
         </nav>
 
-
-        {/* Sidebar Bottom */}
-
         <div className="sidebar-bottom">
 
           <div className="sidebar-help">
-
-            <span>💡</span>
+            <div className="help-icon">?</div>
 
             <div>
               <strong>Need help?</strong>
-
-              <p>
-                Ask your AI Study Assistant.
-              </p>
+              <p>Ask your AI Study Assistant.</p>
             </div>
-
           </div>
-
 
           <button
             className="logout-button"
@@ -290,35 +240,29 @@ function Dashboard() {
       </aside>
 
 
-      {/* ================================
+      {/* =========================
           MAIN CONTENT
-      ================================= */}
+      ========================== */}
 
       <main className="dashboard-main">
 
-
-        {/* Top Bar */}
+        {/* HEADER */}
 
         <header className="dashboard-topbar">
 
           <div>
-
             <p className="page-label">
               STUDENT DASHBOARD
             </p>
 
             <h1>
-              Good to see you, {user.name} 👋
+              Good to see you, {user.name}
             </h1>
 
             <p className="topbar-subtitle">
               Keep learning, keep improving.
             </p>
-
           </div>
-
-
-          {/* User Profile */}
 
           <div className="user-profile">
 
@@ -327,15 +271,8 @@ function Dashboard() {
             </div>
 
             <div className="user-info">
-
-              <strong>
-                {user.name}
-              </strong>
-
-              <span>
-                {user.email}
-              </span>
-
+              <strong>{user.name}</strong>
+              <span>{user.email}</span>
             </div>
 
           </div>
@@ -343,16 +280,16 @@ function Dashboard() {
         </header>
 
 
-        {/* ================================
-            WELCOME BANNER
-        ================================= */}
+        {/* =========================
+            HERO BANNER
+        ========================== */}
 
         <section className="welcome-banner">
 
           <div className="welcome-content">
 
             <span className="banner-tag">
-              ✨ AI LEARNING
+              AI POWERED LEARNING
             </span>
 
             <h2>
@@ -364,40 +301,38 @@ function Dashboard() {
             <p>
               Upload your study materials, generate AI
               summaries, practice with quizzes, and
-              track your progress.
+              track your learning progress.
             </p>
 
             <button
               className="primary-banner-button"
               onClick={goToMaterials}
             >
-              Start Studying →
+              Start Studying
+              <span>→</span>
             </button>
 
           </div>
 
-
-          {/* Banner Visual */}
-
           <div className="banner-visual">
 
             <div className="brain-circle">
-              🧠
+              ✦
             </div>
 
             <div className="floating-card card-one">
-              📚
-              <span>Study</span>
+              <span>📚</span>
+              Study
             </div>
 
             <div className="floating-card card-two">
-              ✓
-              <span>Quiz</span>
+              <span>✓</span>
+              Quiz
             </div>
 
             <div className="floating-card card-three">
-              📈
-              <span>Progress</span>
+              <span>↗</span>
+              Progress
             </div>
 
           </div>
@@ -405,14 +340,11 @@ function Dashboard() {
         </section>
 
 
-        {/* ================================
-            STATS
-        ================================= */}
+        {/* =========================
+            STATISTICS
+        ========================== */}
 
         <section className="stats-grid">
-
-
-          {/* Study Materials */}
 
           <div className="stat-card">
 
@@ -421,92 +353,70 @@ function Dashboard() {
             </div>
 
             <div>
-
-              <span>
-                Study Materials
-              </span>
+              <span>Study Materials</span>
 
               <h3>
                 {loadingStats
                   ? "..."
                   : dashboardStats.totalMaterials}
               </h3>
-
             </div>
 
           </div>
 
 
-          {/* Quizzes */}
-
           <div className="stat-card">
 
             <div className="stat-icon purple">
-              📝
+              ✓
             </div>
 
             <div>
-
-              <span>
-                Quizzes Completed
-              </span>
+              <span>Quizzes Completed</span>
 
               <h3>
                 {loadingStats
                   ? "..."
                   : dashboardStats.totalQuizzes}
               </h3>
-
             </div>
 
           </div>
 
 
-          {/* Average Score */}
-
           <div className="stat-card">
 
             <div className="stat-icon green">
-              🎯
+              %
             </div>
 
             <div>
-
-              <span>
-                Average Score
-              </span>
+              <span>Average Score</span>
 
               <h3>
                 {loadingStats
                   ? "..."
                   : `${dashboardStats.averageScore}%`}
               </h3>
-
             </div>
 
           </div>
 
 
-          {/* Correct Answers */}
-
           <div className="stat-card">
 
             <div className="stat-icon orange">
-              ✅
+              ✓
             </div>
 
             <div>
-
-              <span>
-                Correct Answers
-              </span>
+              <span>Correct Answers</span>
 
               <h3>
                 {loadingStats
                   ? "..."
                   : dashboardStats.totalCorrect}
               </h3>
-
             </div>
 
           </div>
@@ -514,26 +424,20 @@ function Dashboard() {
         </section>
 
 
-        {/* ================================
-            PROGRESS OVERVIEW
-        ================================= */}
+        {/* =========================
+            LEARNING PROGRESS
+        ========================== */}
 
-        <section
-          className="dashboard-section progress-overview"
-        >
+        <section className="dashboard-section">
 
           <div className="section-heading">
 
             <div>
-
-              <h2>
-                Learning Progress
-              </h2>
+              <h2>Learning Progress</h2>
 
               <p>
                 A quick overview of your quiz performance.
               </p>
-
             </div>
 
             <button
@@ -548,36 +452,26 @@ function Dashboard() {
 
           <div className="progress-overview-grid">
 
-            {/* Average Score */}
-
             <div className="progress-main-card">
 
               <div className="progress-main-icon">
-                🎯
+                %
               </div>
 
               <div>
-
-                <span>
-                  Overall Average Score
-                </span>
+                <span>Overall Average Score</span>
 
                 <strong>
                   {dashboardStats.averageScore}%
                 </strong>
-
               </div>
 
             </div>
 
 
-            {/* Quiz Count */}
-
             <div className="progress-small-card">
 
-              <span>
-                Quizzes Completed
-              </span>
+              <span>Quizzes Completed</span>
 
               <strong>
                 {dashboardStats.totalQuizzes}
@@ -590,13 +484,9 @@ function Dashboard() {
             </div>
 
 
-            {/* Correct */}
-
             <div className="progress-small-card">
 
-              <span>
-                Correct Answers
-              </span>
+              <span>Correct Answers</span>
 
               <strong>
                 {dashboardStats.totalCorrect}
@@ -609,13 +499,9 @@ function Dashboard() {
             </div>
 
 
-            {/* Wrong */}
-
             <div className="progress-small-card">
 
-              <span>
-                Wrong Answers
-              </span>
+              <span>Wrong Answers</span>
 
               <strong>
                 {dashboardStats.totalWrong}
@@ -632,24 +518,20 @@ function Dashboard() {
         </section>
 
 
-        {/* ================================
+        {/* =========================
             LEARNING TOOLS
-        ================================= */}
+        ========================== */}
 
         <section className="dashboard-section">
 
           <div className="section-heading">
 
             <div>
-
-              <h2>
-                Learning Tools
-              </h2>
+              <h2>Learning Tools</h2>
 
               <p>
                 Everything you need for smarter studying.
               </p>
-
             </div>
 
           </div>
@@ -657,104 +539,101 @@ function Dashboard() {
 
           <div className="tools-grid">
 
-
-            {/* Study Materials */}
-
             <div className="tool-card">
 
               <div className="tool-icon blue-icon">
                 📚
               </div>
 
-              <h3>
-                Study Materials
-              </h3>
+              <h3>Study Materials</h3>
 
               <p>
                 Upload lecture notes and PDFs to start
                 your AI-powered learning experience.
               </p>
 
-              <button
-                onClick={goToMaterials}
-              >
+              <button onClick={goToMaterials}>
                 Explore →
               </button>
 
             </div>
 
 
-            {/* AI Quizzes */}
-
             <div className="tool-card">
 
               <div className="tool-icon purple-icon">
-                📝
+                ✓
               </div>
 
-              <h3>
-                AI Quizzes
-              </h3>
+              <h3>AI Quizzes</h3>
 
               <p>
                 Test your understanding with quizzes
                 generated from your study materials.
               </p>
 
-              <button
-                onClick={goToQuiz}
-              >
+              <button onClick={goToQuiz}>
                 Take Quiz →
               </button>
 
             </div>
 
 
-            {/* Progress */}
-
             <div className="tool-card">
 
               <div className="tool-icon green-icon">
-                📊
+                ↗
               </div>
 
-              <h3>
-                Track Progress
-              </h3>
+              <h3>Track Progress</h3>
 
               <p>
                 Monitor your scores and understand
                 how your learning is improving.
               </p>
 
-              <button
-                onClick={goToProgress}
-              >
+              <button onClick={goToProgress}>
                 View Progress →
               </button>
 
             </div>
 
 
-            {/* Weak Topics */}
-
             <div className="tool-card">
 
               <div className="tool-icon orange-icon">
-                🧠
+                ◈
               </div>
 
-              <h3>
-                Weak Topics
-              </h3>
+              <h3>Weak Topics</h3>
 
               <p>
                 Discover topics that need more practice
                 and focus your study time effectively.
               </p>
 
-              <button onClick={() => navigate("/weak-topics")}>
+              <button onClick={goToWeakTopics}>
                 View Topics →
+              </button>
+
+            </div>
+
+
+            <div className="tool-card">
+
+              <div className="tool-icon pink-icon">
+                □
+              </div>
+
+              <h3>Study Planner</h3>
+
+              <p>
+                Organize your study sessions and build
+                a consistent learning routine.
+              </p>
+
+              <button onClick={goToStudyPlanner}>
+                Plan Study →
               </button>
 
             </div>
@@ -764,30 +643,34 @@ function Dashboard() {
         </section>
 
 
-        {/* ================================
-            QUIZ HISTORY
-        ================================= */}
+        {/* =========================
+            BOTTOM AREA
+        ========================== */}
 
         <section className="bottom-grid">
 
 
-          {/* Quiz History */}
+          {/* =========================
+              QUIZ HISTORY
+          ========================== */}
 
           <div className="recent-card">
 
             <div className="section-heading">
 
               <div>
-
-                <h2>
-                  Quiz History
-                </h2>
+                <h2>Quiz History</h2>
 
                 <p>
                   Your latest quiz performance.
                 </p>
-
               </div>
+
+              {dashboardStats.quizResults.length > 0 && (
+                <span className="history-count">
+                  {dashboardStats.quizResults.length} quizzes
+                </span>
+              )}
 
             </div>
 
@@ -796,7 +679,7 @@ function Dashboard() {
 
               <div className="empty-state">
 
-                <div>
+                <div className="empty-state-icon">
                   📖
                 </div>
 
@@ -809,9 +692,7 @@ function Dashboard() {
                   tracking your progress.
                 </p>
 
-                <button
-                  onClick={goToMaterials}
-                >
+                <button onClick={goToMaterials}>
                   Start Studying
                 </button>
 
@@ -823,53 +704,65 @@ function Dashboard() {
 
                 {dashboardStats.quizResults
                   .slice(0, 5)
-                  .map((result) => (
+                  .map((result) => {
 
-                    <div
-                      className="recent-activity-item"
-                      key={result.result_id}
-                      onClick={() =>
-                        goToQuizResult(
-                          result.material_id
-                        )
-                      }
-                      style={{
-                        cursor: "pointer",
-                      }}
-                    >
+                    const score = Number(result.score) || 0;
 
-                      <div className="activity-icon">
-                        📝
-                      </div>
+                    return (
+                      <div
+                        className="recent-activity-item"
+                        key={result.result_id}
+                        onClick={() =>
+                          goToQuizResult(result.material_id)
+                        }
+                      >
 
-                      <div className="activity-info">
+                        <div
+                          className={`activity-icon ${
+                            score >= 70
+                              ? "score-good"
+                              : score >= 40
+                              ? "score-medium"
+                              : "score-low"
+                          }`}
+                        >
+                          ✓
+                        </div>
 
-                        <strong>
-                          Quiz Completed
-                        </strong>
 
-                        <p>
-                          Material #{result.material_id}
-                        </p>
+                        <div className="activity-info">
 
-                      </div>
+                          <strong>
+                            Quiz Completed
+                          </strong>
 
-                      <div className="activity-score">
+                          <p>
+                            Material #{result.material_id}
+                          </p>
 
-                        <strong>
-                          {result.score}%
-                        </strong>
+                        </div>
 
-                        <span>
-                          {result.correct_answers}/
-                          {result.total_questions}
+
+                        <div className="activity-score">
+
+                          <strong>
+                            {score}%
+                          </strong>
+
+                          <span>
+                            {result.correct_answers} /{" "}
+                            {result.total_questions} correct
+                          </span>
+
+                        </div>
+
+                        <span className="activity-arrow">
+                          →
                         </span>
 
                       </div>
-
-                    </div>
-
-                  ))}
+                    );
+                  })}
 
               </div>
 
@@ -878,22 +771,20 @@ function Dashboard() {
           </div>
 
 
-          {/* Quick Start */}
+          {/* =========================
+              QUICK START
+          ========================== */}
 
           <div className="quick-card">
 
             <div className="section-heading">
 
               <div>
-
-                <h2>
-                  Quick Start
-                </h2>
+                <h2>Quick Start</h2>
 
                 <p>
                   Start your next study session.
                 </p>
-
               </div>
 
             </div>
@@ -901,23 +792,16 @@ function Dashboard() {
 
             <div className="quick-list">
 
-
-              {/* Upload */}
-
               <div
                 className="quick-item"
                 onClick={goToMaterials}
-                style={{
-                  cursor: "pointer",
-                }}
               >
 
-                <span>
-                  📤
-                </span>
+                <div className="quick-icon">
+                  ↑
+                </div>
 
                 <div>
-
                   <strong>
                     Upload Material
                   </strong>
@@ -925,28 +809,25 @@ function Dashboard() {
                   <p>
                     Add a PDF or lecture note
                   </p>
-
                 </div>
+
+                <span className="quick-arrow">
+                  →
+                </span>
 
               </div>
 
 
-              {/* Summary */}
-
               <div
                 className="quick-item"
                 onClick={goToMaterials}
-                style={{
-                  cursor: "pointer",
-                }}
               >
 
-                <span>
-                  ✨
-                </span>
+                <div className="quick-icon">
+                  ✦
+                </div>
 
                 <div>
-
                   <strong>
                     Generate Summary
                   </strong>
@@ -954,28 +835,25 @@ function Dashboard() {
                   <p>
                     Let AI create short notes
                   </p>
-
                 </div>
+
+                <span className="quick-arrow">
+                  →
+                </span>
 
               </div>
 
 
-              {/* Quiz */}
-
               <div
                 className="quick-item"
                 onClick={goToQuiz}
-                style={{
-                  cursor: "pointer",
-                }}
               >
 
-                <span>
-                  🎯
-                </span>
+                <div className="quick-icon">
+                  ✓
+                </div>
 
                 <div>
-
                   <strong>
                     Take a Quiz
                   </strong>
@@ -983,8 +861,37 @@ function Dashboard() {
                   <p>
                     Test what you have learned
                   </p>
-
                 </div>
+
+                <span className="quick-arrow">
+                  →
+                </span>
+
+              </div>
+
+
+              <div
+                className="quick-item"
+                onClick={goToStudyPlanner}
+              >
+
+                <div className="quick-icon">
+                  □
+                </div>
+
+                <div>
+                  <strong>
+                    Plan Study Session
+                  </strong>
+
+                  <p>
+                    Organize your study time
+                  </p>
+                </div>
+
+                <span className="quick-arrow">
+                  →
+                </span>
 
               </div>
 

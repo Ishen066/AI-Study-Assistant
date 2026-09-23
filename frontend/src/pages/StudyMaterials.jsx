@@ -78,10 +78,14 @@ function StudyMaterials() {
         }
       );
 
-      setMessage("Study material uploaded successfully! 🎉");
+      setMessage("Study material uploaded successfully!");
       setFile(null);
 
-      document.getElementById("fileInput").value = "";
+      const fileInput = document.getElementById("fileInput");
+
+      if (fileInput) {
+        fileInput.value = "";
+      }
 
       loadMaterials();
     } catch (err) {
@@ -177,15 +181,13 @@ function StudyMaterials() {
         }
       );
 
-      setMessage("Study material deleted successfully. 🗑️");
+      setMessage("Study material deleted successfully.");
 
-      // If deleted material was showing summary
       if (summaryMaterial?.id === material.id) {
         setSummary("");
         setSummaryMaterial(null);
       }
 
-      // Refresh materials
       await loadMaterials();
     } catch (err) {
       console.error(err);
@@ -212,25 +214,31 @@ function StudyMaterials() {
     <div className="materials-page">
 
       {/* =========================
-          HEADER
+          PAGE HEADER
       ========================= */}
 
       <div className="materials-header">
 
-        <div>
+        <div className="materials-title-area">
 
-          <p className="page-label">
-            STUDY MATERIALS
-          </p>
+          <div className="materials-title-icon">
+            📚
+          </div>
 
-          <h1>
-            My Study Materials 📚
-          </h1>
+          <div>
+            <p className="page-label">
+              STUDY MATERIALS
+            </p>
 
-          <p>
-            Upload your lecture notes and PDFs to start
-            learning with AI.
-          </p>
+            <h1>
+              My Study Materials
+            </h1>
+
+            <p>
+              Upload your lecture notes and PDFs and
+              let AI help you study smarter.
+            </p>
+          </div>
 
         </div>
 
@@ -245,7 +253,26 @@ function StudyMaterials() {
 
 
       {/* =========================
-          UPLOAD
+          NOTIFICATIONS
+      ========================= */}
+
+      {message && (
+        <div className="materials-alert success-alert">
+          <span className="alert-icon">✓</span>
+          <span>{message}</span>
+        </div>
+      )}
+
+      {error && (
+        <div className="materials-alert error-alert">
+          <span className="alert-icon">!</span>
+          <span>{error}</span>
+        </div>
+      )}
+
+
+      {/* =========================
+          UPLOAD CARD
       ========================= */}
 
       <section className="upload-card">
@@ -256,59 +283,99 @@ function StudyMaterials() {
 
         <div className="upload-content">
 
-          <h2>
-            Upload Study Material
-          </h2>
+          <div className="upload-heading">
 
-          <p>
-            Select a PDF file containing your lecture notes
-            or study material.
-          </p>
+            <div>
+              <span className="upload-badge">
+                PDF
+              </span>
 
-          <form onSubmit={handleUpload}>
+              <h2>
+                Upload Study Material
+              </h2>
 
-            <input
-              id="fileInput"
-              type="file"
-              accept=".pdf,application/pdf"
-              onChange={(e) => {
-                setFile(e.target.files[0]);
-                setMessage("");
-                setError("");
-              }}
-            />
+              <p>
+                Add your lecture notes, slides, or other
+                PDF study materials.
+              </p>
+            </div>
+
+          </div>
+
+          <form
+            onSubmit={handleUpload}
+            className="upload-form"
+          >
+
+            <div className="file-input-wrapper">
+
+              <input
+                id="fileInput"
+                type="file"
+                accept=".pdf,application/pdf"
+                onChange={(e) => {
+                  setFile(e.target.files[0]);
+                  setMessage("");
+                  setError("");
+                }}
+              />
+
+              <label htmlFor="fileInput">
+                <span className="file-upload-icon">
+                  ↑
+                </span>
+
+                <span>
+                  {file
+                    ? "Change PDF"
+                    : "Choose PDF file"}
+                </span>
+              </label>
+
+            </div>
 
             <button
               type="submit"
+              className="upload-submit-button"
               disabled={uploading}
             >
-              {uploading
-                ? "Uploading..."
-                : "Upload PDF"}
+              {uploading ? (
+                <>
+                  <span className="button-spinner"></span>
+                  Uploading...
+                </>
+              ) : (
+                <>
+                  ↑ Upload PDF
+                </>
+              )}
             </button>
 
           </form>
 
           {file && (
-            <p className="selected-file">
-              Selected:{" "}
-              <strong>
-                {file.name}
-              </strong>
-            </p>
+            <div className="selected-file">
+
+              <span className="selected-file-icon">
+                📄
+              </span>
+
+              <div>
+                <span className="selected-file-label">
+                  Selected file
+                </span>
+
+                <strong>
+                  {file.name}
+                </strong>
+              </div>
+
+            </div>
           )}
 
-          {message && (
-            <p className="success-message">
-              {message}
-            </p>
-          )}
-
-          {error && (
-            <p className="error-message">
-              {error}
-            </p>
-          )}
+          <p className="upload-hint">
+            Supported format: PDF only
+          </p>
 
         </div>
 
@@ -316,7 +383,7 @@ function StudyMaterials() {
 
 
       {/* =========================
-          MATERIALS
+          MATERIALS SECTION
       ========================= */}
 
       <section className="materials-section">
@@ -324,6 +391,9 @@ function StudyMaterials() {
         <div className="section-heading">
 
           <div>
+            <p className="section-label">
+              YOUR LIBRARY
+            </p>
 
             <h2>
               Your Materials
@@ -331,12 +401,17 @@ function StudyMaterials() {
 
             <p>
               {materials.length} material
-              {materials.length !== 1
-                ? "s"
-                : ""}
-              {" "}uploaded
+              {materials.length !== 1 ? "s" : ""} available
             </p>
+          </div>
 
+          <div className="material-count">
+            <span>
+              {materials.length}
+            </span>
+            <small>
+              Files
+            </small>
           </div>
 
         </div>
@@ -355,7 +430,7 @@ function StudyMaterials() {
             </h3>
 
             <p>
-              Upload your first PDF to begin your
+              Upload your first PDF above to begin your
               AI-powered study journey.
             </p>
 
@@ -365,96 +440,109 @@ function StudyMaterials() {
 
           <div className="materials-grid">
 
-            {materials.map((material) => (
+            {materials.map((material) => {
 
-              <div
-                className="material-card"
-                key={material.id}
-              >
+              const materialName =
+                material.title ||
+                material.filename ||
+                `Material #${material.id}`;
 
-                {/* Material Icon */}
+              return (
+                <div
+                  className="material-card"
+                  key={material.id}
+                >
 
-                <div className="material-icon">
-                  📄
+                  {/* CARD TOP */}
+
+                  <div className="material-card-top">
+
+                    <div className="material-icon">
+                      📄
+                    </div>
+
+                    <span className="pdf-badge">
+                      PDF
+                    </span>
+
+                  </div>
+
+
+                  {/* MATERIAL INFO */}
+
+                  <div className="material-info">
+
+                    <h3 title={materialName}>
+                      {materialName}
+                    </h3>
+
+                    <p>
+                      Material #{material.id}
+                    </p>
+
+                  </div>
+
+
+                  {/* ACTIONS */}
+
+                  <div className="material-actions">
+
+                    <button
+                      className="material-button summary-material-button"
+                      onClick={() =>
+                        handleSummarize(material)
+                      }
+                      disabled={
+                        summarizingId === material.id ||
+                        deletingId === material.id
+                      }
+                    >
+                      {summarizingId === material.id ? (
+                        <>
+                          <span className="button-spinner"></span>
+                          Generating...
+                        </>
+                      ) : (
+                        <>
+                          ✨ AI Summary
+                        </>
+                      )}
+                    </button>
+
+
+                    <button
+                      className="material-button quiz-material-button"
+                      onClick={() =>
+                        handleQuiz(material)
+                      }
+                      disabled={
+                        deletingId === material.id
+                      }
+                    >
+                      📝 Take Quiz
+                    </button>
+
+
+                    <button
+                      className="material-button delete-material-button"
+                      onClick={() =>
+                        handleDelete(material)
+                      }
+                      disabled={
+                        deletingId === material.id ||
+                        summarizingId === material.id
+                      }
+                    >
+                      {deletingId === material.id
+                        ? "Deleting..."
+                        : "🗑️ Delete"}
+                    </button>
+
+                  </div>
+
                 </div>
-
-
-                {/* Material Information */}
-
-                <div className="material-info">
-
-                  <h3>
-                    {material.title ||
-                      material.filename ||
-                      `Material #${material.id}`}
-                  </h3>
-
-                  <p>
-                    Material ID: {material.id}
-                  </p>
-
-                </div>
-
-
-                {/* Buttons */}
-
-                <div className="material-actions">
-
-                  {/* Summary */}
-
-                  <button
-                    className="material-button"
-                    onClick={() =>
-                      handleSummarize(material)
-                    }
-                    disabled={
-                      summarizingId === material.id ||
-                      deletingId === material.id
-                    }
-                  >
-                    {summarizingId === material.id
-                      ? "Generating..."
-                      : "✨ Summary"}
-                  </button>
-
-
-                  {/* Quiz */}
-
-                  <button
-                    className="material-button quiz-material-button"
-                    onClick={() =>
-                      handleQuiz(material)
-                    }
-                    disabled={
-                      deletingId === material.id
-                    }
-                  >
-                    📝 Take Quiz
-                  </button>
-
-
-                  {/* Delete */}
-
-                  <button
-                    className="material-button delete-material-button"
-                    onClick={() =>
-                      handleDelete(material)
-                    }
-                    disabled={
-                      deletingId === material.id ||
-                      summarizingId === material.id
-                    }
-                  >
-                    {deletingId === material.id
-                      ? "Deleting..."
-                      : "🗑️ Delete"}
-                  </button>
-
-                </div>
-
-              </div>
-
-            ))}
+              );
+            })}
 
           </div>
 
@@ -477,7 +565,7 @@ function StudyMaterials() {
               ✨
             </div>
 
-            <div>
+            <div className="summary-heading-content">
 
               <p className="page-label">
                 AI GENERATED
@@ -503,14 +591,13 @@ function StudyMaterials() {
           </div>
 
 
-          {/* Summary Text */}
+          <div className="summary-divider"></div>
+
 
           <div className="summary-content">
             {summary}
           </div>
 
-
-          {/* Summary Actions */}
 
           <div className="summary-actions">
 

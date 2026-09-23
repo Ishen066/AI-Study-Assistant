@@ -19,9 +19,9 @@ function Quiz() {
     loadQuiz();
   }, [materialId]);
 
-  // ==========================================
+  // =========================
   // LOAD QUIZ
-  // ==========================================
+  // =========================
 
   const loadQuiz = async () => {
     const token = localStorage.getItem("access_token");
@@ -58,9 +58,9 @@ function Quiz() {
     }
   };
 
-  // ==========================================
+  // =========================
   // GENERATE NEW QUIZ
-  // ==========================================
+  // =========================
 
   const generateQuiz = async () => {
     const token = localStorage.getItem("access_token");
@@ -99,9 +99,9 @@ function Quiz() {
     }
   };
 
-  // ==========================================
+  // =========================
   // SELECT ANSWER
-  // ==========================================
+  // =========================
 
   const handleAnswer = (questionId, answer) => {
     setAnswers((previous) => ({
@@ -110,9 +110,9 @@ function Quiz() {
     }));
   };
 
-  // ==========================================
+  // =========================
   // SUBMIT QUIZ
-  // ==========================================
+  // =========================
 
   const handleSubmit = async () => {
     const token = localStorage.getItem("access_token");
@@ -154,7 +154,6 @@ function Quiz() {
         top: 0,
         behavior: "smooth",
       });
-
     } catch (err) {
       console.error(err);
 
@@ -167,41 +166,65 @@ function Quiz() {
     }
   };
 
-  // ==========================================
+  // =========================
   // LOADING
-  // ==========================================
+  // =========================
 
   if (loading) {
     return (
       <div className="quiz-loading">
         <div className="loading-spinner"></div>
-        <p>Loading quiz...</p>
+
+        <h3>Loading your quiz...</h3>
+
+        <p>
+          Preparing your questions
+        </p>
       </div>
     );
   }
 
-  // ==========================================
+  const answeredCount = Object.keys(answers).length;
+
+  const progressPercentage =
+    questions.length > 0
+      ? Math.round(
+          (answeredCount / questions.length) * 100
+        )
+      : 0;
+
+  // =========================
   // RESULT VIEW
-  // ==========================================
+  // =========================
 
   if (result) {
     return (
       <div className="quiz-page">
 
+        {/* Header */}
+
         <div className="quiz-header">
 
-          <div>
-            <p className="page-label">
-              QUIZ RESULT
-            </p>
+          <div className="quiz-title-area">
 
-            <h1>
-              Quiz Completed 🎉
-            </h1>
+            <div className="quiz-title-icon">
+              🎯
+            </div>
 
-            <p>
-              Here is your quiz performance.
-            </p>
+            <div>
+              <p className="page-label">
+                QUIZ RESULT
+              </p>
+
+              <h1>
+                Quiz Completed
+              </h1>
+
+              <p>
+                Here is your performance from this quiz.
+              </p>
+            </div>
+
           </div>
 
           <button
@@ -213,11 +236,16 @@ function Quiz() {
 
         </div>
 
+
         {error && (
           <div className="quiz-error">
+            <span>!</span>
             {error}
           </div>
         )}
+
+
+        {/* Result Card */}
 
         <div className="quiz-result-card">
 
@@ -233,6 +261,17 @@ function Quiz() {
             {result.score}%
           </h2>
 
+          <p className="result-message">
+            {result.score >= 80
+              ? "Great work! Keep it up."
+              : result.score >= 50
+              ? "Good effort! Keep practicing."
+              : "Keep practicing and review your weak areas."}
+          </p>
+
+
+          {/* Statistics */}
+
           <div className="result-stats">
 
             <div className="result-stat">
@@ -242,14 +281,14 @@ function Quiz() {
               </strong>
             </div>
 
-            <div className="result-stat">
+            <div className="result-stat result-correct">
               <span>Correct Answers</span>
               <strong>
                 {result.correct_answers}
               </strong>
             </div>
 
-            <div className="result-stat">
+            <div className="result-stat result-wrong">
               <span>Wrong Answers</span>
               <strong>
                 {result.wrong_answers}
@@ -257,6 +296,9 @@ function Quiz() {
             </div>
 
           </div>
+
+
+          {/* Actions */}
 
           <div className="result-actions">
 
@@ -285,28 +327,39 @@ function Quiz() {
     );
   }
 
-  // ==========================================
+
+  // =========================
   // QUIZ PAGE
-  // ==========================================
+  // =========================
 
   return (
     <div className="quiz-page">
 
+      {/* =========================
+          HEADER
+      ========================= */}
+
       <div className="quiz-header">
 
-        <div>
+        <div className="quiz-title-area">
 
-          <p className="page-label">
-            AI QUIZ
-          </p>
+          <div className="quiz-title-icon">
+            📝
+          </div>
 
-          <h1>
-            Test Your Knowledge 📝
-          </h1>
+          <div>
+            <p className="page-label">
+              AI QUIZ
+            </p>
 
-          <p>
-            Answer the questions based on your study material.
-          </p>
+            <h1>
+              Test Your Knowledge
+            </h1>
+
+            <p>
+              Answer the questions based on your study material.
+            </p>
+          </div>
 
         </div>
 
@@ -319,11 +372,22 @@ function Quiz() {
 
       </div>
 
+
+      {/* =========================
+          ERROR
+      ========================= */}
+
       {error && (
         <div className="quiz-error">
+          <span>!</span>
           {error}
         </div>
       )}
+
+
+      {/* =========================
+          EMPTY STATE
+      ========================= */}
 
       {questions.length === 0 ? (
 
@@ -333,12 +397,17 @@ function Quiz() {
             📝
           </div>
 
+          <p className="page-label">
+            READY TO LEARN?
+          </p>
+
           <h2>
-            No quiz available
+            No Quiz Available
           </h2>
 
           <p>
-            Generate an AI quiz from this study material.
+            Generate an AI-powered quiz from this
+            study material and test your knowledge.
           </p>
 
           <button
@@ -357,27 +426,68 @@ function Quiz() {
 
         <div className="quiz-container">
 
-          {/* Quiz information */}
+          {/* =========================
+              QUIZ PROGRESS CARD
+          ========================= */}
 
           <div className="quiz-info-card">
 
-            <div>
-              <span>Questions</span>
+            <div className="quiz-info-item">
+
+              <span>
+                QUESTIONS
+              </span>
 
               <strong>
                 {questions.length}
               </strong>
+
             </div>
 
-            <div>
-              <span>Answered</span>
+
+            <div className="quiz-info-item">
+
+              <span>
+                ANSWERED
+              </span>
 
               <strong>
-                {Object.keys(answers).length}
+                {answeredCount}
               </strong>
+
             </div>
 
+
+            <div className="quiz-progress-area">
+
+              <div className="quiz-progress-header">
+
+                <span>
+                  Your Progress
+                </span>
+
+                <strong>
+                  {progressPercentage}%
+                </strong>
+
+              </div>
+
+              <div className="quiz-progress-bar">
+
+                <div
+                  className="quiz-progress-fill"
+                  style={{
+                    width: `${progressPercentage}%`,
+                  }}
+                ></div>
+
+              </div>
+
+            </div>
+
+
             <button
+              className="new-quiz-button"
               onClick={generateQuiz}
               disabled={generating || submitting}
             >
@@ -388,7 +498,10 @@ function Quiz() {
 
           </div>
 
-          {/* Questions */}
+
+          {/* =========================
+              QUESTIONS
+          ========================= */}
 
           <div className="questions-list">
 
@@ -399,13 +512,25 @@ function Quiz() {
                 key={question.id}
               >
 
-                <div className="question-number">
-                  Question {index + 1}
+                <div className="question-top">
+
+                  <span className="question-number">
+                    Question {index + 1}
+                  </span>
+
+                  <span className="question-status">
+                    {answers[question.id]
+                      ? "Answered ✓"
+                      : "Not answered"}
+                  </span>
+
                 </div>
+
 
                 <h2>
                   {question.question}
                 </h2>
+
 
                 <div className="options">
 
@@ -449,6 +574,12 @@ function Quiz() {
                         {text}
                       </span>
 
+                      {answers[question.id] === letter && (
+                        <span className="selected-check">
+                          ✓
+                        </span>
+                      )}
+
                     </label>
 
                   ))}
@@ -461,23 +592,41 @@ function Quiz() {
 
           </div>
 
-          {/* Submit */}
+
+          {/* =========================
+              SUBMIT SECTION
+          ========================= */}
 
           <div className="quiz-submit-card">
 
-            <p>
-              {Object.keys(answers).length === questions.length
-                ? "All questions answered. You can submit your quiz."
-                : `Please answer all ${questions.length} questions.`}
-            </p>
+            <div className="submit-info">
+
+              <div className="submit-icon">
+                🚀
+              </div>
+
+              <div>
+
+                <h3>
+                  Ready to submit?
+                </h3>
+
+                <p>
+                  {answeredCount === questions.length
+                    ? "All questions have been answered."
+                    : `Answer all ${questions.length} questions before submitting.`}
+                </p>
+
+              </div>
+
+            </div>
 
             <button
               className="submit-quiz-button"
               onClick={handleSubmit}
               disabled={
                 submitting ||
-                Object.keys(answers).length !==
-                  questions.length
+                answeredCount !== questions.length
               }
             >
               {submitting
