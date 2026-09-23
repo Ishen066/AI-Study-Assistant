@@ -138,7 +138,12 @@ function Dashboard() {
   };
 
   const goToHelp = () => {
-  navigate("/help");
+    navigate("/help");
+  };
+
+  // AI Assistant navigation
+  const goToAIAssistant = () => {
+    navigate("/ai-assistant");
   };
 
   if (!user) {
@@ -216,6 +221,15 @@ function Dashboard() {
           >
             <span>□</span>
             Study Planner
+          </button>
+
+          {/* AI Assistant */}
+          <button
+            className="nav-item"
+            onClick={goToAIAssistant}
+          >
+            <span>🤖</span>
+            AI Assistant
           </button>
 
         </nav>
@@ -645,6 +659,28 @@ function Dashboard() {
 
             </div>
 
+
+            {/* AI ASSISTANT */}
+
+            <div className="tool-card">
+
+              <div className="tool-icon purple-icon">
+                🤖
+              </div>
+
+              <h3>AI Assistant</h3>
+
+              <p>
+                Ask questions, understand difficult
+                concepts, and get help with your studies.
+              </p>
+
+              <button onClick={goToAIAssistant}>
+                Ask AI →
+              </button>
+
+            </div>
+
           </div>
 
         </section>
@@ -893,6 +929,34 @@ function Dashboard() {
 
                   <p>
                     Organize your study time
+                  </p>
+                </div>
+
+                <span className="quick-arrow">
+                  →
+                </span>
+
+              </div>
+
+
+              {/* AI ASSISTANT QUICK START */}
+
+              <div
+                className="quick-item"
+                onClick={goToAIAssistant}
+              >
+
+                <div className="quick-icon">
+                  🤖
+                </div>
+
+                <div>
+                  <strong>
+                    Ask AI Assistant
+                  </strong>
+
+                  <p>
+                    Get help with your studies
                   </p>
                 </div>
 
