@@ -7797,11 +7797,20 @@ a {
 .help-card {
   position: relative;
   overflow: hidden;
+  width: 100%;
+  box-sizing: border-box;
+
   background: #ffffff;
   border: 1px solid #e2e8f0;
   border-radius: 16px;
+
   padding: 24px;
   min-height: 190px;
+
+  text-align: left;
+  font-family: inherit;
+  cursor: pointer;
+
   transition:
     transform 0.25s ease,
     box-shadow 0.25s ease,
@@ -8002,4 +8011,18 @@ a {
   .help-dashboard-button {
     width: 100%;
   }
+}
+.help-card-arrow {
+  display: block;
+  margin-top: 18px;
+
+  font-size: 13px;
+  font-weight: 700;
+  color: #6d28d9;
+
+  transition: transform 0.2s ease;
+}
+
+.help-card:hover .help-card-arrow {
+  transform: translateX(5px);
 }
