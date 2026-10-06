@@ -8583,3 +8583,83 @@ a {
     padding-bottom: 14px;
   }
 }
+
+.ai-response {
+  line-height: 1.7;
+}
+
+.ai-response-paragraph {
+  margin: 0 0 12px;
+  color: #334155;
+}
+
+.ai-response-paragraph strong {
+  color: #1e293b;
+  font-weight: 700;
+}
+
+.ai-response-heading {
+  margin: 18px 0 10px;
+  color: #312e81;
+  font-weight: 700;
+  line-height: 1.4;
+}
+
+.ai-response-heading:first-child {
+  margin-top: 0;
+}
+
+.ai-response-bullet {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  margin: 7px 0;
+  color: #334155;
+}
+
+.ai-response-bullet > span {
+  color: #6366f1;
+  font-size: 18px;
+  line-height: 1.5;
+}
+
+.ai-response-bullet p {
+  margin: 0;
+  flex: 1;
+}
+
+.ai-response-numbered {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  margin: 8px 0;
+  color: #334155;
+}
+
+.ai-response-number {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 25px;
+  height: 25px;
+  border-radius: 50%;
+  background: #eef2ff;
+  color: #4f46e5;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.ai-response-numbered p {
+  margin: 0;
+  flex: 1;
+}
+
+.ai-response-space {
+  height: 7px;
+}
+
+.ai-user-text {
+  margin: 0;
+  color: #ffffff;
+  line-height: 1.6;
+}

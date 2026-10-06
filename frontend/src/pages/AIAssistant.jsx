@@ -10,6 +10,10 @@ function AIAssistant() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
+  // ==========================================
+  // SEND MESSAGE TO AI
+  // ==========================================
+
   const sendMessage = async (e) => {
     e.preventDefault();
 
@@ -63,7 +67,7 @@ function AIAssistant() {
         assistantMessage,
       ]);
     } catch (err) {
-      console.error(err);
+      console.error("AI Assistant Error:", err);
 
       setError(
         err.response?.data?.detail ||
@@ -74,87 +78,11 @@ function AIAssistant() {
     }
   };
 
-  // Simple Markdown-style renderer
-  const renderAIResponse = (content) => {
-    const lines = content.split("\n");
+  // ==========================================
+  // FORMAT BOLD TEXT
+  // Converts **text** into bold text
+  // ==========================================
 
-    return lines.map((line, index) => {
-      const trimmedLine = line.trim();
-
-      // Empty line
-      if (!trimmedLine) {
-        return <div key={index} className="ai-response-space"></div>;
-      }
-
-      // Heading ###
-      if (trimmedLine.startsWith("### ")) {
-        return (
-          <h4 key={index} className="ai-response-heading">
-            {trimmedLine.replace("### ", "")}
-          </h4>
-        );
-      }
-
-      // Heading ##
-      if (trimmedLine.startsWith("## ")) {
-        return (
-          <h3 key={index} className="ai-response-heading">
-            {trimmedLine.replace("## ", "")}
-          </h3>
-        );
-      }
-
-      // Heading #
-      if (trimmedLine.startsWith("# ")) {
-        return (
-          <h3 key={index} className="ai-response-heading">
-            {trimmedLine.replace("# ", "")}
-          </h3>
-        );
-      }
-
-      // Bullet point
-      if (
-        trimmedLine.startsWith("- ") ||
-        trimmedLine.startsWith("* ")
-      ) {
-        const bulletText = trimmedLine.substring(2);
-
-        return (
-          <div key={index} className="ai-response-bullet">
-            <span>•</span>
-            <span>{formatBoldText(bulletText)}</span>
-          </div>
-        );
-      }
-
-      // Numbered list
-      if (/^\d+\.\s/.test(trimmedLine)) {
-        const match = trimmedLine.match(/^(\d+)\.\s(.*)$/);
-
-        return (
-          <div key={index} className="ai-response-numbered">
-            <span className="ai-response-number">
-              {match[1]}
-            </span>
-
-            <span>
-              {formatBoldText(match[2])}
-            </span>
-          </div>
-        );
-      }
-
-      // Normal paragraph
-      return (
-        <p key={index} className="ai-response-paragraph">
-          {formatBoldText(trimmedLine)}
-        </p>
-      );
-    });
-  };
-
-  // Convert **text** into bold text
   const formatBoldText = (text) => {
     const parts = text.split(/(\*\*.*?\*\*)/g);
 
@@ -174,16 +102,190 @@ function AIAssistant() {
     });
   };
 
+  // ==========================================
+  // RENDER AI RESPONSE
+  // Handles:
+  // # headings
+  // ## headings
+  // ### headings
+  // - bullets
+  // * bullets
+  // 1. numbered lists
+  // **bold text**
+  // normal paragraphs
+  // ==========================================
+
+  const renderAIResponse = (content) => {
+    if (!content) {
+      return (
+        <p className="ai-response-paragraph">
+          No response was received from the AI assistant.
+        </p>
+      );
+    }
+
+    const lines = content.split("\n");
+
+    return lines.map((line, index) => {
+      const trimmedLine = line.trim();
+
+      // Empty line
+      if (!trimmedLine) {
+        return (
+          <div
+            key={index}
+            className="ai-response-space"
+          />
+        );
+      }
+
+      // ========================================
+      // Heading ###
+      // ========================================
+
+      if (trimmedLine.startsWith("### ")) {
+        return (
+          <h4
+            key={index}
+            className="ai-response-heading"
+          >
+            {formatBoldText(
+              trimmedLine.replace("### ", "")
+            )}
+          </h4>
+        );
+      }
+
+      // ========================================
+      // Heading ##
+      // ========================================
+
+      if (trimmedLine.startsWith("## ")) {
+        return (
+          <h3
+            key={index}
+            className="ai-response-heading"
+          >
+            {formatBoldText(
+              trimmedLine.replace("## ", "")
+            )}
+          </h3>
+        );
+      }
+
+      // ========================================
+      // Heading #
+      // ========================================
+
+      if (trimmedLine.startsWith("# ")) {
+        return (
+          <h2
+            key={index}
+            className="ai-response-heading"
+          >
+            {formatBoldText(
+              trimmedLine.replace("# ", "")
+            )}
+          </h2>
+        );
+      }
+
+      // ========================================
+      // Bullet points
+      // Supports:
+      // - item
+      // * item
+      // • item
+      // ========================================
+
+      if (
+        trimmedLine.startsWith("- ") ||
+        trimmedLine.startsWith("* ") ||
+        trimmedLine.startsWith("• ")
+      ) {
+        const bulletText = trimmedLine.replace(
+          /^[-*•]\s*/,
+          ""
+        );
+
+        return (
+          <div
+            key={index}
+            className="ai-response-bullet"
+          >
+            <span className="ai-bullet-icon">
+              •
+            </span>
+
+            <p>
+              {formatBoldText(bulletText)}
+            </p>
+          </div>
+        );
+      }
+
+      // ========================================
+      // Numbered list
+      // Supports:
+      // 1. item
+      // 2. item
+      // 3) item
+      // ========================================
+
+      const numberedMatch = trimmedLine.match(
+        /^(\d+)[.)]\s+(.*)$/
+      );
+
+      if (numberedMatch) {
+        return (
+          <div
+            key={index}
+            className="ai-response-numbered"
+          >
+            <span className="ai-response-number">
+              {numberedMatch[1]}
+            </span>
+
+            <p>
+              {formatBoldText(numberedMatch[2])}
+            </p>
+          </div>
+        );
+      }
+
+      // ========================================
+      // Normal paragraph
+      // ========================================
+
+      return (
+        <p
+          key={index}
+          className="ai-response-paragraph"
+        >
+          {formatBoldText(trimmedLine)}
+        </p>
+      );
+    });
+  };
+
+  // ==========================================
+  // SUGGESTION BUTTON
+  // ==========================================
+
   const handleSuggestion = (text) => {
     setMessage(text);
   };
 
+  // ==========================================
+  // PAGE
+  // ==========================================
+
   return (
     <div className="ai-assistant-page">
 
-      {/* =========================
+      {/* ======================================
           PAGE HEADER
-      ========================== */}
+      ======================================= */}
 
       <div className="ai-assistant-header">
 
@@ -195,7 +297,8 @@ function AIAssistant() {
           <h1>AI Assistant</h1>
 
           <p>
-            Ask questions and get help with your studies.
+            Ask questions and get help with your
+            studies.
           </p>
         </div>
 
@@ -209,13 +312,15 @@ function AIAssistant() {
       </div>
 
 
-      {/* =========================
+      {/* ======================================
           CHAT CARD
-      ========================== */}
+      ======================================= */}
 
       <div className="ai-chat-card">
 
-        {/* Chat Header */}
+        {/* ====================================
+            CHAT HEADER
+        ===================================== */}
 
         <div className="ai-chat-header">
 
@@ -224,22 +329,28 @@ function AIAssistant() {
           </div>
 
           <div className="ai-header-info">
+
             <h2>Study Assistant</h2>
 
             <div className="ai-online-status">
               <span></span>
               AI Assistant is ready
             </div>
+
           </div>
 
         </div>
 
 
-        {/* Chat Messages */}
+        {/* ====================================
+            CHAT MESSAGES
+        ===================================== */}
 
         <div className="ai-chat-messages">
 
-          {/* Empty State */}
+          {/* ==================================
+              EMPTY STATE
+          =================================== */}
 
           {messages.length === 0 && !loading && (
 
@@ -254,9 +365,10 @@ function AIAssistant() {
               </h3>
 
               <p>
-                Ask me to explain a topic, simplify a
-                concept, give examples, or help you
-                understand something you are studying.
+                Ask me to explain a topic,
+                simplify a concept, give examples,
+                or help you understand something
+                you are studying.
               </p>
 
 
@@ -276,6 +388,7 @@ function AIAssistant() {
                   Explain a concept
                 </button>
 
+
                 <button
                   type="button"
                   onClick={() =>
@@ -287,6 +400,7 @@ function AIAssistant() {
                   <span>📚</span>
                   Give me an example
                 </button>
+
 
                 <button
                   type="button"
@@ -307,7 +421,9 @@ function AIAssistant() {
           )}
 
 
-          {/* Messages */}
+          {/* ==================================
+              CHAT MESSAGES
+          =================================== */}
 
           {messages.map((chatMessage, index) => (
 
@@ -320,11 +436,16 @@ function AIAssistant() {
               }`}
             >
 
+              {/* Avatar */}
+
               <div className="ai-message-avatar">
                 {chatMessage.role === "user"
                   ? "👤"
                   : "🤖"}
               </div>
+
+
+              {/* Message content */}
 
               <div className="ai-message-content">
 
@@ -334,16 +455,25 @@ function AIAssistant() {
                     : "AI Assistant"}
                 </span>
 
-                {chatMessage.role === "assistant" ? (
+
+                {/* User message */}
+
+                {chatMessage.role === "user" ? (
+
+                  <p className="ai-user-text">
+                    {chatMessage.content}
+                  </p>
+
+                ) : (
+
+                  /* AI response */
+
                   <div className="ai-response">
                     {renderAIResponse(
                       chatMessage.content
                     )}
                   </div>
-                ) : (
-                  <p className="ai-user-text">
-                    {chatMessage.content}
-                  </p>
+
                 )}
 
               </div>
@@ -353,7 +483,9 @@ function AIAssistant() {
           ))}
 
 
-          {/* Loading */}
+          {/* ==================================
+              LOADING / TYPING
+          =================================== */}
 
           {loading && (
 
@@ -390,17 +522,23 @@ function AIAssistant() {
         </div>
 
 
-        {/* Error */}
+        {/* ====================================
+            ERROR MESSAGE
+        ===================================== */}
 
         {error && (
+
           <div className="ai-error">
             <span>⚠️</span>
             {error}
           </div>
+
         )}
 
 
-        {/* Input Area */}
+        {/* ====================================
+            INPUT AREA
+        ===================================== */}
 
         <form
           className="ai-chat-input-area"
@@ -429,8 +567,14 @@ function AIAssistant() {
 
         </form>
 
+
+        {/* ====================================
+            INPUT HINT
+        ===================================== */}
+
         <div className="ai-input-hint">
-          AI Study Assistant • Ask questions about your studies
+          AI Study Assistant • Ask questions
+          about your studies
         </div>
 
       </div>
